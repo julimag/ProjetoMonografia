@@ -1,0 +1,226 @@
+%\documentclass{beamer} % apresentacao
+
+% That doesn't affect the result. There is only one less warning.
+%\documentclass[hyperref={pdfpagelabels=false}]{beamer} % apresentacao sem warning de ''... \thepage is undefined''
+\documentclass[hyperref={pdfpagelabels=false},smaller]{beamer}
+%===============================================================================
+% PACKAGES
+%===============================================================================
+
+% preambulo para escrever em portugues
+\usepackage[brazil]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+% usar cor em tabela
+\usepackage{colortbl}
+
+\setbeamertemplate{navigation symbols}{}
+
+%===============================================================================
+% THEMES
+%===============================================================================
+
+\usetheme[secheader]{Berkeley} %side nav list
+% \usepackage{graphicx}
+
+% \mode<presentation>
+
+%
+% MACROS
+%
+\newcommand{\univ}{Faculdade 7 de Setembro - FA7}
+\newcommand{\titulo}{Testes de Acessibilidade Automatizados para Aplicativos Web em Dispositivos Móveis}
+\newcommand{\tipo}{Projeto de Monografia}
+\newcommand{\autor}{Juliana Feitosa Magalhães}
+\newcommand{\curso}{Especialização em Desenvolvimento Ágil de Software}
+\newcommand{\coordenador}{Prof. Ciro Carneiro Coelho}
+\newcommand{\disciplina}{Metodologia Científica}
+\newcommand{\professora}{Profa. Aline Mota Albuquerque}
+\newcommand{\local}{Fortaleza}
+\newcommand{\data}{Dezembro de 2011}
+
+\begin{document}
+
+\title[\tipo]{\titulo}
+\author[]{\autor}
+\institute[]{\univ \\ \curso \\ \coordenador \\ \disciplina \\ \professora}
+\date[\data]{\data} % para fixar a data de acordo com o macro \data declarado
+
+\frame{\titlepage}
+
+%===============================================================================
+\section{Introdução}
+
+\begin{frame}
+
+   \frametitle{Introdução}
+
+      \begin{block}{O que faz parte do tema?}
+         \begin{itemize}
+            \item Dispositivos Móveis
+            \item Aplicativos Web
+            \item Testes de Acessibilidade
+            \item Testes Automatizados
+         \end{itemize}
+      \end{block}
+
+\end{frame}
+
+%===============================================================================
+\section{Problema}
+
+\begin{frame}
+
+  \frametitle{Problema}
+
+  \begin{alertblock}{O que e como testar?}
+    \begin{itemize}
+      \item Quais as regras de acessibilidade para web?
+      \item Como são feitos os testes de acessibilidade? E com quais ferramentas?
+      \item Como automatizar testes de acessibilidade?
+      \item Quais as restrições de testes para dispositivos móveis?
+	\begin{itemize}
+	  \item Tamanho da tela (tela reduzida)
+	  \item Novas tecnologia (tela sensível ao toque)
+	  \item Poder de processamento menor (avaliar performance)
+	  \item Velocidade da internet disponível (analisar desempenho)
+	\end{itemize}
+    \end{itemize}
+  \end{alertblock}
+
+\end{frame}
+
+%===============================================================================
+\section{Justificativa}
+
+\begin{frame}
+
+   \frametitle{Justificativa}
+
+      \begin{block}{Porque ?!?}
+         \begin{itemize}
+            \item Porque testar?
+            \item Porque acessibilidade?
+            \item Porque automatizar?
+            \item Porque dispositivos móveis?
+	    \item Porque web?
+         \end{itemize}
+      \end{block}
+
+\end{frame}
+
+%===============================================================================
+\section{Objetivo}
+
+\begin{frame}
+
+   \frametitle{Objetivo Geral e Objetivo Específico}
+
+      \begin{block}{Geral}
+
+         Estudar a problemática dos testes de acessibilidade no contexto móvel.
+
+      \end{block}
+
+      \begin{block}{Específico}
+
+         Implementar testes automatizados de acessibilidade com foco em navegadores de dispositivos móveis.
+
+      \end{block}
+
+\end{frame}
+
+%===============================================================================
+\section{Hipótese}
+
+\begin{frame}
+
+   \frametitle{Hipótese}
+
+      As ferramentas de testes automatizados não são comumente utilizadas para verificar e validar às restrições de acessibilidade em dispositivos móveis.
+
+\end{frame}
+
+%===============================================================================
+\section{Metodologia}
+
+\begin{frame}
+
+   \frametitle{Metodologia}
+
+  \begin{exampleblock}{}
+    \begin{itemize}
+      \item Elencar as principais regras de acessibilidade para web:
+	\begin{itemize}
+	  \item ... nos dispositivos móveis;
+	\end{itemize}
+      \item Catalogar ferramentas mais utilizadas para testes automatizados para web:
+	\begin{itemize}
+	  \item ... com foco nos navegadores dos dispositivos móveis;
+	\end{itemize}
+      \item Avaliar o uso das ferramentas catalogadas para testes de acessibilidade automatizados:
+	\begin{itemize}
+	  \item ... nos navegadores dos dispositivos móveis;
+	\end{itemize}
+      \item Analisar os testes de acessibilidade automatizados nos navegadores dos dispositivos móveis.
+    \end{itemize}
+  \end{exampleblock}
+
+\end{frame}
+
+%===============================================================================
+% Cronograma
+%===============================================================================
+\section{Cronograma}
+
+\begin{frame}
+
+\frametitle{Cronograma}
+
+\begin{scriptsize}
+\begin{enumerate}
+ \item Definir escopo e Cursar as disciplinas pendentes;
+ \item Pesquisa bibliográfica;
+ \item Definir e implementar testes;
+ \item Escrever monografia;
+ \item Revisar monografia;
+ \item Concluir monografia.
+\end{enumerate} 
+\end{scriptsize}
+
+% tabela do cronograma
+\begin{scriptsize}
+\begin{center}
+ \begin{tabular}{ | c | c | c | c | c | c | c | c | c |}
+   \hline
+& Janeiro & Fevereiro & Março & Abril & Maio & Junho & Julho & Agosto \\ 
+\hline
+1 & \cellcolor{gray} & \cellcolor{gray} &  &  &  &  &  &  \\
+\hline
+2 & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} &  &  \\
+\hline
+3 &  &  & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} &  &  &  \\
+\hline
+4 &  & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} & \cellcolor{gray} &  &  \\
+\hline
+5 &  &  &  &  &  &  & \cellcolor{gray} &  \\
+\hline
+6 &  &  &  &  &  &  &  & \cellcolor{gray} \\
+\hline
+ \end{tabular}
+\end{center}
+\end{scriptsize}
+
+\end{frame}
+
+%===============================================================================
+\section{Referências Bibliográficas}
+
+  \nocite{*}
+
+%estilos: abbrv, acm, alpha, apalike, ieeetr, plain, siam e unsrt
+\bibliographystyle{abnt-alf} %abnt-alf ordenado por [nome_autor] ao inves de [numero]
+\bibliography{projetoMonografia}
+
+
+\end{document}

@@ -1,0 +1,93 @@
+\relax 
+\citation{GMolinaUW99}
+\citation{GMolinaUW99}
+\citation{Graefe93}
+\citation{OzsuV99}
+\citation{Ioannidis}
+\citation{Kossmann00}
+\citation{Giovano01}
+\citation{WeinerMH08}
+\@writefile{toc}{\contentsline {chapter}{Cap\'{\i }tulo~2---Processamento e Otimiza\c c\~ao de Consultas }{4}{chapter.2}}
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{chp:2-fundamentos}{{2}{4}{Processamento e Otimização de Consultas \relax }{chapter.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Processamento de Consultas}{4}{section.2.1}}
+\newlabel{sec:chp-2-processamento}{{2.1}{4}{Processamento de Consultas\relax }{section.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Processador de consultas (adaptado de \cite  {GMolinaUW99})}}{4}{figure.2.1}}
+\newlabel{fig:pc_geral_camadas}{{2.1}{4}{Processador de consultas (adaptado de \cite {GMolinaUW99})\relax }{figure.2.1}{}}
+\citation{Figueiredo07}
+\citation{ElmasriN94}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Etapas do processamento de consultas}}{5}{figure.2.2}}
+\newlabel{fig:pc_geral_camadas_detalhadas}{{2.2}{5}{Etapas do processamento de consultas\relax }{figure.2.2}{}}
+\citation{OzsuV99}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Centralizado versus Distribu\IeC {\'\i }do}{6}{subsection.2.1.1}}
+\newlabel{sec:chp-2-centralizado_distribuido}{{2.1.1}{6}{Centralizado versus Distribuído\relax }{subsection.2.1.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces Processador de consultas distribu\IeC {\'\i }das}}{6}{figure.2.3}}
+\newlabel{fig:pcd_camadas}{{2.3}{6}{Processador de consultas distribuídas\relax }{figure.2.3}{}}
+\citation{McHughW99}
+\citation{PaparizosJ06}
+\citation{GouCC07}
+\citation{GouCC07}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Relacional versus XML}{7}{subsection.2.1.2}}
+\newlabel{sec:chp-2-relacional_xml}{{2.1.2}{7}{Relacional versus XML\relax }{subsection.2.1.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces TODO - adaptar de \cite  {GouCC07} - Exemplo de documentos XML}}{7}{figure.2.4}}
+\newlabel{fig:publishers}{{2.4}{7}{TODO - adaptar de \cite {GouCC07} - Exemplo de documentos XML\relax }{figure.2.4}{}}
+\citation{SmiljanicBKJ02}
+\citation{GouCC07}
+\citation{GouCC07}
+\citation{AboulnagaAN01}
+\citation{WuPJ02}
+\citation{GouCC07}
+\citation{PolyzotisGI04}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces TODO - adaptar de \cite  {GouCC07} - Express\~oes de caminho}}{8}{figure.2.5}}
+\newlabel{fig:expressoes}{{2.5}{8}{TODO - adaptar de \cite {GouCC07} - Expressões de caminho\relax }{figure.2.5}{}}
+\citation{PolyzotisGI04}
+\citation{Graefe93}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.6}{\ignorespaces TODO - adaptar de \cite  {PolyzotisGI04} - Binding Tuples}}{9}{figure.2.6}}
+\newlabel{fig:bindingTuples}{{2.6}{9}{TODO - adaptar de \cite {PolyzotisGI04} - Binding Tuples\relax }{figure.2.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Otimiza\c c\~ao de Consultas}{9}{section.2.2}}
+\newlabel{sec:chp-2-otimizacao}{{2.2}{9}{Otimização de Consultas\relax }{section.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.1}Heur\IeC {\'\i }stica e Custo}{9}{subsection.2.2.1}}
+\newlabel{subsec:chp-2-heuristica_custo}{{2.2.1}{9}{Heurística e Custo\relax }{subsection.2.2.1}{}}
+\citation{OzsuV99}
+\citation{ElmasriN94}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}M\'odulos do otimizador}{10}{subsection.2.2.2}}
+\newlabel{subsec:chp-2-modulos_otimizador}{{2.2.2}{10}{Módulos do otimizador\relax }{subsection.2.2.2}{}}
+\citation{Giovano01}
+\@setckpt{./capitulos/capitulo2}{
+\setcounter{page}{12}
+\setcounter{equation}{0}
+\setcounter{enumi}{0}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{0}
+\setcounter{mpfootnote}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{2}
+\setcounter{section}{2}
+\setcounter{subsection}{2}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{figure}{6}
+\setcounter{table}{0}
+\setcounter{parentequation}{0}
+\setcounter{Def}{0}
+\setcounter{Axi}{0}
+\setcounter{Conj}{0}
+\setcounter{Lem}{0}
+\setcounter{Theo}{0}
+\setcounter{Prop}{0}
+\setcounter{Cor}{0}
+\setcounter{AlgoLine}{0}
+\setcounter{algocfline}{0}
+\setcounter{algocf}{0}
+\setcounter{Item}{0}
+\setcounter{Hfootnote}{0}
+\setcounter{subfigure}{0}
+\setcounter{lofdepth}{1}
+\setcounter{subtable}{0}
+\setcounter{lotdepth}{1}
+\setcounter{section@level}{2}
+}

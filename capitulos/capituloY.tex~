@@ -1,0 +1,92 @@
+%===============================================================================
+% CAPITULO 4 - ESTRATEGIA
+%===============================================================================
+\chapter{Modelo de Custo para Dados XML em Ambiente Distribuído}\label{chp:4-modelo_proposto}
+
+%===============================================================================
+% INTRODUCAO
+%===============================================================================
+\section{Introdução}\label{sec:chp-4-introducao}
+
+% pag 38 - Alexandre Silva
+A aplicação de regras de normalização [M.ARENAS, L.LIBKIN, 2004] pode transformar os atributos em elementos, transformando o problema de fragmentar
+atributos em um caso normal de fragmentação vertical. Caso esta normalização não seja desejada no escopo do esquema, ou seja, os atributos devem existir para a aplicação do usuário, esta ainda pode ser realizada de forma transparente para o usuário. O SGBD no momento da implementação do fragmento pode criar os elementos para os atributos (de acordo com as regras de normalização), e, no momento de retorná-los ao usuário, voltar à representação de atributos. Nós consideramos que a normalização do esquema seria o caminho mais simples para esse tipo de caso, já que não mudaria a definição do que é um fragmento vertical.
+
+Apenas divagando... Devemos ter uma matriz com todos os custos de transmissão entre os sítios da rede. Normalmente, é considerado custo igual para os dois sentidos em um link, constituindo uma matriz simétrica. Mas qual o custo de consultar "o custo de transmissão DE todos os sítios que possuem o fragmento PARA o sítio que submeteu a consulta" e ainda consultar o "custo de transmissão DE todos os sítios que possuem o fragmento PARA todos os sítios que possuem o fragmento seguinte da consulta" ? Aparentemente, no pior caso, podemos ter o documento inteiro em todos os N sítios e ter que escolher de qual deles consultar. Se a consulta for dividida em duas partes p1 e p2, primeiro precisamos saber qual dos N sítios será escolhido para p1 (implica em um cálculo de cardinalidade do resultado parcial de p1 para N sítios), depois precisamos fazer o mesmo para p2, e finalmente, após a escolha do sítio para p1 e do sítio para p2, precisamos decidir se o resultado parcial de p1 deve ser transmitido para p2 ou se p2 para p1 ou se p1 e p2 devem ir para o sítio que submeteu a consulta. Observar que é preciso considerar primeiro se a resposta para a consulta está ou não no próprio sítio requisitante; caso esteja em mais de um sítio, antes de escolher deve-se levar em conta se o tal sítio tem custo de transmissão menor para o requisitante ou ainda se possui custo de transmissão menor para o sítio do resultado parcial a ser usado de alguma forma por ele no passo seguinte (por exemplo, uma junção). No caso de uma junção entre dois resultados parciais, é mais importante considerar o custo de transmissão entre os sítios que participam da junção ou o custo de transmissão dos sítios para o sítio requisitante? Ou as duas coisas? Se for as duas coisas... Então em uma junção entre sítios diferentes, por exemplo, sempre haverá uma verificação "tripla" de custo de transmissão... Sejam s1,s2,s3 sítios, s1 possui o resultado parcial para a consulta p1, s2 para p2 e s3 é requisitante da consulta p formada por p1 e p2. Precisamos calcular os custos de s1s2 e s1s3 + s2s3, para saber é melhor resolver a consulta em s1 ou s2 e depois transportar apenas o resultado para s3, ou se é melhor transmitir os resultados parciais para s3 e lá executar o restante da consulta.
+
+O presente trabalho considera a distribuição dos fragmentos, replicados ou não, de um único documento entre diferentes sítios.
+
+Um dataguide strong é gerado a partir do próprio documento, dessa forma, não é necessário fornecer o esquema deste. Além disso, o dataguide é construído com alguns detalhes adicionais como a quantidade de nós em cada extensão (quantidade total de nós agrupados = número de nós do documento representados pela \textit{extensão} no dataguide).
+
+É preciso gerar um dataguide strong para o documento completo, chamado dataguide global, bem como, gerar dataguides para cada fragmento existente em cada sítio, chamados dataguides locais. Ou então, armazenar em cada nó do dataguide global, além da cardinalidade total, a cardinalidade do nó em cada sítio (exemplo: count(v) = 8 onde count(v,s1) = 5, count(v,s5) = 7, count(v,s9) = 6)
+
+Todos os sítios devem guardar uma cópia do dataguide global. Isto objetiva minimizar os custos de comunicação para a consulta ao dataguide global e também garantir a sua disponibilidade.
+
+Cada sítio deve armazenar um único fragmento do documento. Dessa forma, também haverá apenas um dataguide local em cada sítio. Ou então, cada nó armazena no máximo a cardinalidade total para cada sítio (\begin{math}count(v,sn) <= count(v)\end{math}).
+
+Observe que, um único sítio pode fornecer vários resultados, os quais podem ou não ser \textit{pedaços} de uma junção posterior. Exemplo: selecionar os nomes dos livros de um dado autor e as revistas de um certo ano. Suponha que os nomes dos livros e as revistas com a informação dos anos estão no sítio A, enquanto as informações de autor estão no sítio B. Veja que o resultado das revistas e seus respectivos anos foi totalmente obtido em A, enquanto os nomes dos livros com a restrição de autor são obtidos com a junção do resultado parcial de A e B.
+
+Diante do exposto, sempre considere no custo de comunicação, a cardinalidade tanto do resultado parcial que faz parte da junção posterior como também a cardinalidade do resultado parcial que não o faz, dessa forma, toda a cardinalidade obtida em um dado sítio para efeito de resolução de uma consulta
+é considerada para o cálculo do custo de comunicação.
+
+A existência de réplicas induz a necessidade de escolha da melhor réplica para efeito do custo de comunicação e descarte do resultado parcial não escolhido. Atente para o fato do descarte só ocorrer neste caso, quando não há resultados parciais duplicados, o custo de comunicação é calculado e os resultados parciais são trasferidos para o melhor sítio para processeguir com o processamento da consulta.
+
+Suponha um certo nó \textit{x} de um dataguide local A com cardinalidade maior que o mesmo nó \textit{x} em um dataguide local B (indicando que mais valores de \textit{x} foram depositados no sítio A). Se apenas a cardinalidade do nó for considerada para efeito de escolha do sítio (no sentido de reduzir o resultado parcial da consulta e minimizar o custo de comunicação), intuitivamente, o sítio B seria escolhido para executar a consulta. No entanto, a informação desejada pode não estar localizada em B.
+
+O custo de comunicação no processamento de consultas só faz sentido em ambiente distribuído e, sem dúvida, se refere diretamente à importância de minimizar os resultados parciais a serem transferidos de um sítio para outro. No custo de comunicação, é preciso considerar além da quantidade de ocorrências de um dado nó que influencia no resultado parcial, a quantidade deste mesmo nó no dataguide. Dessa forma, temos um custo inicial para busca do nó correspondente à consulta no dataguide (custo de navegação) somado ao custo de correspondência da consulta mediante um predicado ou não (custo de correspondência). Para o primeiro, considera-se a quantidade de vezes que um mesmo rótulo acessado na consulta (mencionada na expressão) aparece em um dataguide; para o segundo, considera-se a quantidade de vezes que o rótulo aparece no documento (fragmento) representado pela cardinalidade armazenada no dataguide.
+
+As consultas que possuem predicado de conteúdo impõem uma complexidade adicional, principalmente se o conteúdo não for numérico, visto que, as estatísticas de valores são obtidas através de histograma. Surge a dúvida: é possível dimensionar valores do tipo string?
+
+Seja a consulta \textit{obter o telefone e email dos alunos cujo nome é João e que residem em Fortaleza}. Suponha que as informações telefone e nome dos alunos estão no sítio A; email no sítio B e local no sítio C. 
+
+Suponha que existam 200 alunos, sendo todos com telefone e 100 com email, e 110 que residem em Fortaleza.
+Suponha que existam 150 alunos em A, dos quais 70 são João.
+Suponha que existam 100 alunos em B.
+Suponha que existam 50 alunos em C, dos quais 30 residem em Fortaleza.
+Desses, 19 são João e residem em Fortaleza, apenas 9 são João residem em Fortaleza e tem email.
+
+Considerando apenas informações de estrutura, a cardinalidade do resultado parcial em A seria 150, em B seria 100 e em C seria 50. Haveria uma estimativa de, no mínimo, 150 x 100 x 50. Mas observe que, ao executar a consulta em A, o resultado seria 70; em C seria 30; e em B seria 70 ou 30 dependendo da ordem de junção com A ou C, respectivamente. Ora, mas para diminuir os resultado parciais de A e C pela aplicação do predicado de conteúdo João e Fortaleza, é preciso usar um histograma de intervalo de valores não numéricos. [Como fazer isso? Restringir o escopo para valores apenas numéricos?]
+
+Outro exemplo que deve ser atendido: seja a consulta \textit{obter os alunos cujo nome é Maria e que estudam em Sobral}. Suponha 20.000 alunos da UFC, sendo os sítios Fortaleza, Sobral e Quixadá. O sítio Fortaleza possui todas as informações enquanto Sobral possui apenas informações dos seus 300 alunos. Suponha que a consulta é requisitada por Quixadá e o link da rede de Fortaleza-Quixadá é mais rápido que o link Sobral-Quixadá. No entanto, se a consulta for realizada em Fortaleza, o custo de buscar o resultado entre os 20.000 alunos é maior que buscar o resultado entre os 300 alunos em Sobral, pois em Fortaleza é preciso verificar se Maria estuda em Sobral, enquanto em Sobral essa verificação é dispensável. [Como fazer isso? Isso já é considerado otimização semântica?]
+
+
+Assumindo que todo o escopo foi definido (de tal forma que o uso de dataguide e histograma satisfaz e atende todas as necessidades) e considerando a seguinte consulta:
+\begin{quote}
+\textless bib \textgreater \{ \\
+   for \$b in doc(``bib.xml'')/bib/book \\
+   where \$b/authors//last = ``Stevens'' and \\
+   \$b/@year \textgreater 1991 \\
+   return \textless book \textgreater \{ \$b/title \} \textless /book \textgreater \\
+\} \textless /bib \textgreater \\
+\end{quote}
+
+A fórmula de custo de um dos planos obtidos é \begin{math} cost_{nv}(p1) + |p1| × cost_{nv}(p2) + |p1[p2]| × cost_{nv}(p3) \end{math}
+onde: p1, p2, e p3 são as expressões de caminho de doc(``bib.xm'')/bib/book, authors//last[.=``Stevens''] e @year[.\textgreater1991], respectivamente.
+
+%===============================================================================
+% INTRODUCAO: TRABALHOS RELACIONADOS
+%===============================================================================
+\subsection{Trabalhos Relacionados}\label{sec:chp-4-trabalhos_relacionados}
+
+%===============================================================================
+% 
+%===============================================================================
+\section{Parâmetros e Estatísticas Necessários}\label{sec:chp-4-parametros}
+
+%===============================================================================
+% 
+%===============================================================================
+\section{Seletividade da Expressão de Caminho}\label{sec:chp-4-seletividade}
+
+%===============================================================================
+% 
+%===============================================================================
+\section{Múltiplas Referências Idênticas}\label{sec:chp-4-multiplas_referencias}
+
+%===============================================================================
+% 
+%===============================================================================
+\section{Análise de Custo de Comunicação}\label{sec:chp-4-custo_comunicacao}
+
+%EOF
+

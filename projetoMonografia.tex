@@ -1,0 +1,213 @@
+\documentclass[classic,oneside]{./templates/ufpethesis}
+%
+% PACKAGES
+%
+
+% pacotes uteis para a escrita de documentos LaTeX escritos na lingua portuguesa traduz o documento (i.e. de Abstract para Resumo, o formato da data,...) enquanto o segundo facilita a escrita de acentos e cedilha
+\usepackage[portugues,ruled,vlined]{algorithm2e}
+% \usepackage[latin1]{inputenc}
+%carrega a hifenização em português e também coloca os títulos de seções, data, etc. nesse idioma
+\usepackage[brazil]{babel}
+% \usepackage[latin1]{inputenc}
+% \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% usar cor em tabela
+\usepackage{colortbl}
+\usepackage{fancyhdr} %estilo de pagina mais elaborado
+\usepackage{cite} %permite quebra de linha em \cite
+\usepackage{multirow} %usar varias linhas em uma coluna da tabela
+\usepackage{setspace}
+\usepackage{graphicx,url,fancybox}
+\usepackage{acronym}
+%se o usepackage{hyperref} for declarado antes de \usepackage{alg...} ocorre warning: destination with the same identifier
+\usepackage{hyperref}
+
+\linespread{1.3} %espacamento entre linhas de ''um e meio''
+
+\setlength{\headheight}{15pt} %evitar Package Fancyhdr Warning: \headheight is too small
+
+\hypersetup{colorlinks,
+   debug=false,
+   linkcolor=blue,  %%% cor do tableofcontents, \ref, \footnote, etc
+   citecolor=red,  %%% cor do \cite
+   urlcolor=blue,   %%% cor do \url e \href
+   bookmarksopen=true,
+   pdftitle={...},
+   pdfauthor={},
+   pdfsubject={LaTeX},
+   pdfkeywords={LaTeX}
+}
+
+%
+% IDENTIFICACAO
+%
+\university{Faculdade 7 de Setembro - FA7}
+\address{Fortaleza-CE}
+\institute{}
+\program{Especialização em Desenvolvimento Ágil de Software}
+\majorfield{}
+
+\title{Testes de Acessibilidade Automatizados para Aplicativos Web em Dispositivos Móveis}
+\date{Dezembro - 2011}
+\author{Juliana Feitosa Magalhães}
+\adviser{}
+%\adviser{Prof. Me. Wagner Aquino}
+%\coadviser{Prof. Me. }
+
+
+%
+% INICIO DO DOCUMENTO
+%
+\begin{document}
+
+%
+% CAPA
+%
+\frontmatter
+\frontpage
+% 
+\presentationpage
+
+%
+% CORPO
+%
+\mainmatter
+
+% % cabecalho mais elaborado
+% \pagestyle{fancy}
+% % 
+% \renewcommand{\headrulewidth}{0.3pt} %largura da linha do cabecalho
+% \renewcommand{\footrulewidth}{0.3pt} %largura da linha do rodape
+% %\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}} %exibir capitulo
+% \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}% exibir igual a secao (nao coloca em letra maiuscula!)
+% 
+% \lhead{\sl\small\rightmark} % exibe a secao, \leftmark exibe o capitulo
+% \rhead{}
+% \lfoot{\sl\small\titulo} % exibe titulo
+% \cfoot[\fancyplain{\thepage}{}]{\fancyplain{\thepage}{}}
+% \rfoot{\small\thepage} % exibe numero da pagina
+
+% set footers
+% \lfoot{\sl\small\titulo} % exibe titulo - precisa declarar macro titulo
+% \cfoot[\fancyplain{\thepage}{}]{\fancyplain{\thepage}{}}
+% \rfoot{\small\thepage} % exibe numero da pagina
+
+%===============================================================================
+\section*{1.Introdução}
+%===============================================================================
+
+% Dispositivos móveis
+A ampla disseminação de dispositivos móveis pelo mundo é fato, e o grande desafio é usufruir ao máximo dos recursos desses equipamentos e de tudo aquilo que eles podem proporcionar. A presença da tecnologia móvel no cotidiano das pessoas induz investimentos tanto na ciência quanto no mercado. E o alvo de interesse de todos é, sem dúvida, a internet: seja o usuário de um lado em busca de satisfazer seu desejo, seja o fornecedor do serviço do outro com o intuito de se destacar. 
+
+% Internet e dispositivos móveis
+Atualmente, a corrida é para adaptar o mundo da internet à mobilidade. Os sites não estão preparados para os celulares, smartphones, tablets e outros \textit{gadgets}. A visualização reduzida, as telas sensíveis ao toque, o poder de processamento menor e a velocidade de internet disponível são alguns fatores a serem considerados no desenvolvimento web.
+
+% Acessibilidade e dispositivos móveis
+Outra problemática é a necessidade de cumprir os conceitos e regras de acessibilidade nesse contexto do mundo digital. Os deficientes devem ser capazes de utilizar as funcionalidades disponíveis em uma aplicação tanto quanto os usuários não-deficientes. E para garantir o atendimento desses direitos e aumentar a qualidade do produto, é importante a execução dos testes de acessibilidade.
+
+% Testes de acessibilidade e testes automatizados
+Teste de acessibilidade pode ser uma atividade complicada e cansativa, mas é muito importante. A preocupação em cumprir os conceitos e regras de acessibilidade deve ser hábito de todos aqueles que estão envolvidos no desenvolvimento do trabalho. 
+
+Conforme afirma \cite{Kon08}, muitos métodos ágeis, como Lean, Scrum e XP recomendam que todas as pessoas de um projeto (programadores, gerentes, equipes de homologação e até mesmo os clientes) trabalhem controlando a qualidade do produto todos os dias e a todo momento, pois acreditam que prevenir defeitos é mais fácil e barato que identificá-los e corrigi-los. A Programação eXtrema, em particular, recomenda explicitamente testes automatizados para ajudar a garantir a qualidade dos sistemas de software.
+
+O teste manual realizado pelo próprio desenvolvedor da aplicação é tendencioso e, mesmo que o testador seja outro, o teste manual repetitivo é cansativo e dispendioso. Os testes automatizados permitem a execução de um grande número de casos de teste rapidamente. 
+
+
+%===================================================================
+\section*{2.Problema}
+%===================================================================
+
+Unir o mundo digital móvel com qualidade de software exige o uso de testes no desenvolvimento das aplicações. Mas o que exatamente testar? E como testar?
+
+Inúmeros problemas envolvem esse contexto. Para prover acessibilidade é preciso conhecer os conceitos e regras definidos, bem como, é necessário saber quais as restrições pertinentes aos dispositivos móveis. No caso dos aspectos restritivos podem ser considerados: o tamanho da tela (tela reduzida), novas tecnologias (tela sensível ao toque), poder de processamento (performance menor) e velocidade da internet disponível (baixo desempenho).
+
+Ademais, agregar testes automatizados a toda essa problemática citada é um desafio ainda maior.
+
+%===================================================================
+\section*{3.Justificativa}
+%===================================================================
+
+Todo e qualquer estudo envolvendo melhorias para a mobilidade digital é benéfico \cite{GoogleMobileAds11}. E sabe-se que o uso de testes no desenvolvimento de aplicativos garante maior segurança e qualidade. Dessa forma, associar a idéia de testes aos dispositivos móveis agrega valor. Ademais, unir a isto o conhecimento de acessibilidade é ainda mais útil.
+
+%===================================================================
+\section*{4.Objetivo}
+%===================================================================
+
+\subsection*{Objetivo Geral}
+Estudar a problemática dos testes de acessibilidade no contexto móvel.
+
+\subsection*{Objetivo Específico}
+Implementar testes automatizados de acessibilidade com foco em navegadores de dispositivos móveis.
+Identificar os principais conceitos e regras de acessibilidade para avaliar as aplicações web no contexto móvel.
+Identificar as ferramentas de testes automatizados que dão suporte às novas tecnologias.
+
+%===================================================================
+\section*{5.Hipótese}
+%===================================================================
+
+As ferramentas de testes automatizados não são comumente utilizadas para verificar e validar às restrições de acessibilidade em dispositivos móveis.
+
+%===================================================================
+\section*{6.Metodologia}
+%===================================================================
+
+Faz parte do presente trabalho elencar as principais regras de acessibilidade \cite{eMag11}, catalogar ferramentas mais utilizadas para testes automatizados, avaliar o uso das ferramentas catalogadas para testes de acessibilidade automatizados, considerando tudo isto para web com foco nos dispositivos móveis. Além disso, é preciso analisar os testes de acessibilidade automatizados nos navegadores dos dispositivos móveis.
+
+%===================================================================
+\section*{7.Cronograma}
+%===================================================================
+
+\begin{scriptsize}
+\begin{enumerate}
+ \item Definir escopo e Cursar as disciplinas pendentes;
+ \item Pesquisa bibliográfica;
+ \item Definir e implementar testes;
+ \item Escrever monografia;
+ \item Revisar monografia;
+ \item Concluir monografia.
+\end{enumerate} 
+\end{scriptsize}
+
+% tabela do cronograma
+\begin{scriptsize}
+\begin{center}
+ \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | c | c | c | }
+   \hline
+& Mar & Abr & Mai & Jun & Jul & Ago & Set & Out & Nov & Dez & Jan & Fev
+\\ \hline
+1  & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} &  & 
+  & & & & & & \\
+\hline
+2 & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{}
+  & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} \\
+\hline
+3 & & & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} &          & & & & & & & \\
+\hline
+4 & & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & & & & & & \\
+\hline
+5 & & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & & & & & & & & \\
+\hline
+6 & & & & & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} &
+\multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & & & 
+& \\ \hline
+7 & & & & & & 
+  & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \\
+\hline
+8 & & & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & \multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} & & & & & & & \\
+\hline
+9 & & & & & & & & & & & &
+\multicolumn{1}{| >{\columncolor[gray]{.8}}r|}{} \\
+   \hline
+ \end{tabular}
+\end{center}
+\end{scriptsize}
+
+%===================================================================
+
+\backmatter
+
+%estilos: abbrv, acm, alpha, apalike, ieeetr, plain, siam e unsrt
+\bibliographystyle{abnt-alf} % abnt-alf ordenado por [nome_autor] ao inves de [numero]
+\bibliography{projetoMonografia}
+
+\end{document}

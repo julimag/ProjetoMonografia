@@ -1,0 +1,177 @@
+%===============================================================================
+% CAPITULO 2 - FUNDAMENTOS TEÓRICOS
+%===============================================================================
+\chapter{Processamento e Otimização de Consultas }\label{chp:2-fundamentos}
+
+%===============================================================================
+% PROCESSAMENTO DE CONSULTAS
+%===============================================================================
+\section{Processamento de Consultas}\label{sec:chp-2-processamento}
+
+%Adaptado de: pag 16, Giovano; pag 10, Ruberg; pag 201, Valduriez
+O processamento de consultas é um requisito essencial de um Sistema de Gerenciamento de Banco de Dados (SGBD). O processador de consultas, módulo responsável por este serviço, deve transformar uma consulta definida em uma linguagem de alto nível em uma equivalente de nível mais baixo e, em seguida, executá-la sobre o conteúdo na base dados. A transformação realizada deve ser correta e eficiente. A corretude existe se a consulta de baixo nível e a original são semanticamente iguais, ou seja, se ambas produzem o mesmo resultado. A eficiência é obtida quando o tempo decorrido neste processo não compromete o tempo de resposta da consulta.
+
+O processamento de consultas pode ser dividido em várias etapas. Uma representação superficial é encontrada em \cite{GMolinaUW99} e ilustrada pela figura \ref{fig:pc_geral_camadas}, onde o processador é inicialmente caracterizado por duas grandes atividades: a compilação e a execução.
+
+% Adaptar figura de \cite{GMolinaUW99}
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.30\linewidth]{./figuras/pc_geral_camadas.jpg} 
+ \caption[Figura]{Processador de consultas (adaptado de \cite{GMolinaUW99})}
+ \label{fig:pc_geral_camadas}
+\end{figure}
+
+Outras formas de esboçar as atividades do processador de consultas podem ser encontradas em \cite{Graefe93}, \cite{OzsuV99}, \cite{Ioannidis}, \cite{Kossmann00}, \cite{Giovano01}, \cite{WeinerMH08}. Nas diversas abordagens, a idéia para processar uma consulta no banco de dados é similar. A figura \ref{fig:pc_geral_camadas_detalhadas} exibe uma seqüência genérica um pouco mais detalhada.
+
+% Adaptar figura de Elaine
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.30\linewidth]{./figuras/pc_geral_camadas_detalhadas.jpg} 
+ \caption[Figura]{Etapas do processamento de consultas}
+ \label{fig:pc_geral_camadas_detalhadas}
+\end{figure}
+
+Algumas das camadas principais do processamento de consultas são: a análise, a conversão algébrica e a otimização. A análise é a primeira tarefa do processador, sendo ela léxica, sintática e semântica. A léxica é a forma de verificar o alfabeto da linguagem e assim, ao analisar uma palavra, saber se existe ou não algum caracter que não faz parte do alfabeto. Os símbolos léxicos gerados são mais facilmente manipulados pelo processo de análise sintática, que por sua vez, realiza a tradução destes de acordo com regras da gramática da linguagem. A semântica verifica o significado no contexto. Ainda na fase de análise, pode ser feita a normalização e a simplificação da consulta. O objetivo da normalização é mapeiar a consulta para uma forma normalizada, a fim de faciliar o processamento adicional. Uma maneira de simplificação é a eliminação de redundâncias através de um conjunto de regras de idempotência, cujo objetivo é a simplificação da lógica booleana dos predicados de seleção da consulta, exemplificado em \cite{Figueiredo07}. % apenas ultima sentenca retirada de Guilherme - pag 35
+
+A etapa de conversão transforma a consulta validada em sua representação algébrica. Esse mapeamento bem definido, da consulta de alto nível para baixo nível, pode facilitar na corretude. A utilização de uma álgebra formal no processamento de consultas é fundamental.
+
+A etapa de otimização objetiva encontrar uma estratégia de execução para a consulta que esteja próxima da ótima. Na verdade, o termo otimização é inapropriado porque o plano de execução escolhido não é, necessariamente, a estratégia ótima - a melhor - mas apenas uma razoavelmente eficiente. Encontrar a estratégia ótima geralmente consome muito tempo, exceto para as consultas mais simples, e pode requerer informações sobre a maneira como os arquivos estão implementados e até mesmo sobre o conteúdo destes \cite{ElmasriN94}.
+
+\subsection{Centralizado versus Distribuído}\label{sec:chp-2-centralizado_distribuido}
+
+%pag 207, 215
+É muito difícil avaliar e comparar os processadores de consultas no contexto dos sistemas centralizados e dos sistemas distribuídos, porque eles podem diferir em muitos aspectos, como o tipo de algoritmo, a granularidade e a sincronização de otimização, o uso de estatísticas, a escolha de sítios de decisão, a exploração da topologia de rede e a exploração de fragmentos replicados \cite{OzsuV99}.
+
+%pag 205, 201 - adaptado
+O banco de dados distribuído é visto como um único banco de dados pelos usuários e as consultas em alto nível, submetidas a ele, devem ser convertidas em uma estratégia de execução eficiente em uma linguagem de baixo nível e sobre bancos de dados locais. A figura \ref{fig:pcd_camadas} exibe um esboço neste contexto.
+
+% %pag 202
+% Em um contexto centralizado, as estratégias de execução de consultas podem ser expressas em uma extensão da álgebra. No contexto distribuído, a álgebra não é suficente para expressar as estratégias de execução. Ela deve ser complementada com operações para intercâmbio de dados entre os sítios. Além da opção de ordenar operações, o processador deve selecionar os melhores sítios para processar os dados e, possivelmente, o modo como os dados devem ser transformados. Isso aumenta o espaço de solução a partir do qual é escolhida a estratégia, tornando o processador de consultas distribuídas significativamente mais difícil \cite{OzsuV99}.
+
+% Adaptar figura de 
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.30\linewidth]{./figuras/pcd_camadas.jpg} 
+ \caption[Figura]{Processador de consultas distribuídas}
+ \label{fig:pcd_camadas}
+\end{figure}
+
+%pag 242 - adaptado
+O ambiente distribuído acrescenta mais algumas etapas em relação ao processamento de consultas centralizado. A localização e a otimização global são pertinentes à arquitetura de SGBDs distribuídos. Na localização, as referências globais são substituídas por referências aos fragmentos, além disso, há a fase de redução onde fragmentos irrelevantes ao resultado podem ser eliminados. Na otimização global, é gerado um plano de execução de consultas otimizado, que consiste na consulta algébrica especificada sobre fragmentos e nas operações de comunicação para dar suporte à execução da consulta sobre os sítios.
+
+\subsection{Relacional versus XML}\label{sec:chp-2-relacional_xml}
+
+A natureza hierárquica e semi-estruturada intrínseca à estrutura XML implica em uma complexidade extra na manipulação das consultas. Os dados semi-estruturados são definidos como dados irregulares ou incompletos e cuja estrutura pode mudar rapidamente ou de forma imprevisível \cite{McHughW99}.
+
+No modelo relacional, uma tupla é uma unidade básica de operação e uma relação é um conjunto de tuplas. Em XML, uma base de dados é geralmente descrita como uma floresta de árvores, as quais possuem uma raiz e os nós, ou arestas, rotulados \cite{PaparizosJ06}.
+
+% Adaptar figura de 
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.70\linewidth]{./figuras/publishers.jpg} 
+ \caption[Figura]{TODO - adaptar de \cite{GouCC07} - Exemplo de documentos XML}
+ \label{fig:publishers}
+\end{figure}
+
+Existem basicamente três tipos de nós em uma árvore de dados XML \cite{GouCC07}: nós de elemento, de atributo e de valor. Os primeiros correspondem às \textit{tags} dos documentos, por exemplo \textit{publisher} na figura \ref{fig:publishers}. Os segundos, aos atributos associados aos primeiros, por exemplo \textit{@name}. E os últimos, aos valores dos dados, por exemplo, \textit{MIT Press}.
+
+Ao contrário dos nós de elementos, os nós de atributo não são aninhados, nem repetidos e nem ordenados. Desse modo, nenhum atributo pode ter subelementos, bem como, um elemento não pode ter dois atributos com mesmo nome e os atributos podem ser trocados de posição livremente.
+
+Os documentos XML são caracterizados pelo conteúdo e estrutura. Este fato introduz dois tipos principais de consultas \cite{SmiljanicBKJ02}: consultas de conteúdo, por exemplo, encontrar todos os elementos contendo o texto ``Banco de Dados''; e consultas de estrutura, por exemplo, encontrar todos os elementos descendentes de um dado elemento. Uma única consulta XML pode conter filtros de conteúdo e de estrutura.
+
+Basicamente as consultas XML podem ser formadas usando apenas expressões de caminho simples (\textit{path pattern}) ou expressões de caminho complexo (\textit{twig patterns}), como na figura \ref{fig:expressoes} \cite{GouCC07}.
+
+% Adaptar figura de 
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.90\linewidth]{./figuras/expressoes.jpg} 
+ \caption[Figura]{TODO - adaptar de \cite{GouCC07} - Expressões de caminho}
+ \label{fig:expressoes}
+\end{figure}
+
+Uma expressão de caminho simples é uma sequência de rótulos que representam um caminho na estrutura de dados XML, podendo começar em qualquer ponto da árvore, não necessariamente na raiz, e sem apresentar ramificações \cite{AboulnagaAN01}.
+
+Uma expressão de caminho complexo, ao contrário do tipo simples, pode conter predicados e retornar mais de um nó de saída. As expressões de caminho complexo são subárvores, as quais correspondem ao modo mais natural para consultar dados organizados de forma hierárquica \cite{WuPJ02}.
+
+Uma subárvore de consulta XPath tem apenas um nó de saída e o resultado correspondente é retornado como um conjunto de nós. Já uma subárvore de consulta XQuery, geralmente, inclui mais de um nó de saída e o resultado é retornado como um conjunto de tuplas de nós \cite{GouCC07}. Formalmente, estas tuplas são ditas tuplas de ligação (\textit{binding tuples}) \cite{PolyzotisGI04}.
+
+Cada tupla de ligação é dada por \begin{math}\bar{t}=\{e_{1}, e_{2}, ..., e_{m}\}\end{math} onde o elemento \begin{math}e_{i}\end{math} está associado à variável da consulta \begin{math}t_{i}\end{math}: \begin{math}P_{i}\end{math}, sendo \begin{math}1 \leqslant i \leqslant m \end{math} e \begin{math}t_{i}\end{math}: \begin{math}P_{i}\end{math} a representação do nó da subárvore tendo \begin{math}P_{i}\end{math} como expressão de caminho.
+
+Assim, para qualquer aresta \begin{math}(t_{j},t_{i}) \in T_{Q}\end{math}, o elemento \begin{math}e_{i}\end{math} está no conjunto do resultado de \begin{math}P_{i}\end{math} quando ele é alcançado a partir de \begin{math}e_{j}\end{math}.
+% A seletividade \begin{math}s(T_{Q})\end{math} da consulta \begin{math}T_{Q}\end{math} é definida como um número de tuplas de ligação geradas.
+
+%===============================================================================
+% OTIMIZAÇÃO DE CONSULTAS
+%===============================================================================
+\section{Otimização de Consultas}\label{sec:chp-2-otimizacao}
+
+%pag 205, Valduriez adaptado; pag 75, Graefe
+A otimização é um tema importante do processamento de consultas, pela necessidade de se escolher a melhor estratégia de execução, aquela que minimiza as medidas mais relevantes de desempenho, dentre as obtidas. Essas medidas se referem aos tempos de resposta, CPU e E/S; bem como, tempo e esforço de comunicação, os quais podem diferir quando há paralelismo; custos com memória, como espaço de alocação máximo; gasto total com recursos, até mesmo consumo de energia. As medidas consideradas pelo otimizador podem ser apenas uma das enumeradas ou mesmo uma combinação de todas elas \cite{Graefe93}.
+% o consumo de recursos
+
+%pag 490 Navathe adaptado
+Existem duas técnicas principais para implementar a otimização de consultas. A primeira técnica é baseada em heurísticas e a segunda, em custos.
+
+%pag 504 Navathe adaptado
+Uma heurística funciona bem na maioria dos casos, mas não existem garantias de que funcione bem em todos os casos possíveis. Ela pode ser aplicada através de regras de transformação ou estratégias de busca.
+
+%pag 511 Navathe adaptado; pag 243 Valduriez adaptado
+As regras de transformação, geralmente, reordenam as operações na árvore de consultas. Uma das principais é a aplicação dos operadores de seleção e projeção o quanto antes para, assim, reduzir o tamanho do resultado parcial gerado. O uso dessas transformações acarreta no espaço de busca, o qual consiste de planos de execução alternativos para representar a consulta inicial. Esses planos são equivalentes, no sentido de obter o mesmo resultado, mas diferem na ordem de execução das operações e no modo como estas são implementadas, atingindo desempenho variado.
+
+%pag 20 Pires adaptado; pag 246 Valduriez adaptado;
+% As estratégias exploram o espaço de busca, restringindo-o aos melhores planos. No entanto, podem não conduzir a planos ótimos devido às heurísticas não serem baseadas em custos e utilizarem apenas informações lógicas para descartar os planos. 
+
+% ==================================================================================================================
+% DUVIDA: A PROGRAMACAO DINAMICA ESCOLHE UM UNICO PLANO DA CONSULTA. MAS, COMO EH FEITA A ESCOLHA? BASEADA NO CUSTO?
+% ==================================================================================================================
+%pag 244, 246 Valduriez adaptado;
+As estratégias exploram o espaço de busca e selecionam o melhor plano. Elas definem os planos que serão examinados e a ordem do exame. A programação dinâmica é uma das estratégias de busca mais popular, que é determinística. Ela constrói todos os planos possíveis, primeiro na largura, antes de escolher o melhor plano. Para reduzir o custo de otimização, planos parciais que provavelmente não conduzirão ao plano ótimo são descartados assim que possível. Em contraste, outra estratégia determinística, a estratégia gulosa, constrói apenas um plano, atuando primeiro em profundidade \cite{OzsuV99}.
+%pag 246 Valduriez
+% A programação dinâmica é quase exaustiva e assegura que seja encontrado o melhor de todos os planos.
+
+% ==================================================================================================================
+% DUVIDA: NA VERDADE, NAO SERIA UMA SEGUNDA TECNICA, POIS OS CUSTOS SAO USADOS PELA PRIMEIRA TECNICA...
+% ==================================================================================================================
+A segunda técnica, para implementar a otimização de consultas, envolve estimar sistematicamente o custo de diferentes estratégias de execução e escolher o plano de execução com a menor estimativa de custo. As duas técnicas são geralmente combinadas em um otimizador de consultas .
+
+Uma abordagem diferente para otimização de consultas é a otimização semântica de consultas. Essa técnica, que pode ser utilizada em combinação com as técnicas previamente citadas, utiliza restrições específicas no esquema do banco de dados no sentido de modificar uma consulta para uma outra que seja mais eficiente quanto à execução. O otimizador semântico, a partir de uma certa restrição, pode ser capaz de saber que o resultado da consulta será vazio e não ser necessário executá-la \cite{ElmasriN94}.
+
+Um otimizador de consultas pode ser visualizado como um conjunto de três módulos: o espaço de busca, a otimização baseada em regras e a otimização baseada em custos. Dá-se o nome de espaço de busca ao conjunto de planos algébricos equivalentes que podem ser gerados a partir do plano algébrico inicial com o uso de regras de transformação. A priori, o espaço de busca é constituído pelos planos algébricos gerados pela fase anterior à otimização. No caso do ambiente distribuído, este seria o plano ``localizado'', o qual possui referências aos fragmentos.
+
+Através da otimização baseada em regras, obtêm-se diversos outros planos algébricos, pois a simples troca de posição de operadores é capaz de produzir um grande número de equivalências. O espaço de busca tende a crescer exponencialmente, assim, o custo para selecionar o melhor plano de execução dentro de um espaço de busca muito rico pode ser proibitivo de forma que o tempo de otimização acabe por exceder o próprio tempo de execução \cite{Giovano01}. Para restringir o espaço de busca e tornar o tempo de otimização aceitável, faz-se necessária a utilização de uma estratégia de busca. A estratégia de busca mais utilizada é a programação dinâmica. No entanto,esta pode não conduzir a planos ótimos devido às heurísticas não serem baseadas em custos e utilizarem apenas informações lógicas para descartar os planos.
+
+O terceiro componente do otimizador é o modelo do custo. É através desse modelo que o otimizador pode escolher, dentro do espaço de busca, qual o plano mais eficiente. O custo deve refletir o nível de utilização por parte do plano de recursos como tempo de CPU, custo de E/S, utilização de memória e custos de comunicação de acordo com a arquitetura utilizada. As funções para estimativa de custo são chamadas durante o processo de otimização e utilizam informações estatísticas da base de dados como o número de nós existentes na base de dados e o nível de utilização de memória de operações como junções. O modelo de custos deve fornecer valores próximos da realidade, para que o otimizador escolha bem os planos, e deve computar esses valores de forma eficiente para não degradar o tempo de execução do próprio processo de otimização.
+
+% No entanto, como uma consulta original pode ter muitas transformações equivalentes e corretas, a produção de uma estratégia de execução eficiente torna-se mais complicada. É preciso considerar os diferentes consumos de recursos por cada uma das estratégias e selecionar aquela menos dispendiosa.
+
+%pag 512
+% Um otimizador de consultas não deve depender somente de regras heurísticas; também deve estimar e comparar os custos de execução, utilizando diferentes estratégias, e deve escolher a estratégia com a menor estimativa de custo. Para que essa abordagem funcione, são necessárias estimativas de custo precisas, de modo que diferentes estratégias sejam comparadas de maneira justa e realista. Além disso, devemos limitar o número de estratégias de execução a serem consideradas; caso contário, gastaremos muito tempo realizando estimativas de custo para as muitas estratégias possíveis. Portanto, esse método é mais adequado para consultas compiladas, nas quais se faz a otimização no momento da compilação, e o código da estratégia de execução é armazenado e executado diretamente no momento da execução. Para consultas interpretadas, nas quais todo o processamento de consulta ocorre no momento da execução, uma otimização em grande escala pode retardar o tempo de resposta. Para consultas compiladas, indica-se uma otimização mais elaborada enquanto uma otimização parcial, que consome menos tempo, funciona melhor para consultas interpretadas \cite{ElmasriN94}.
+
+% Damos a essa abordagem o nome otimização de consultas baseada em custo, e ela utiliza técnicas tradicionais de otimização que buscam o espaço de solução de um problema, para uma solução que minimize uma função objetiva (custo). As funções de custo utilizadas na otimização de consultas são estimativas e não funções exatas de custo, de modo que a otimização pode selecionar uma estratégia de execução de consulta que não seja exatamente aquela considerada ótima \cite{ElmasriN94}.
+
+%pag 208
+% Em termos conceituais, a otimização de consultas visa à escolha do melhor ponto no espaço de soluções de todas as estratégias de execução possíveis. Um método imediato para otimização de consultas é pesquisar os espaços de soluções, prever exaustivamente o custo de cada estratégia e selecionar a estratégia com custo mínimo. Embora esse método seja eficiente na seleção da melhor estratégia, ele pode incorrer em um custo de processamento significativo para a própria otimização \cite{OzsuV99}.
+
+% O problema é que o espaço de soluções pode ser grande; isto é, pode haver muitas estratégias equivalentes, mesmo com um número pequeno de relacionamentos. Isso se agrava com o aumento do número de fragmentos. Ter um custo de otimização alto não é necessariamente ruim, em particular se a otimização de consultas é feita uma vez para muitas execuções subseqüentes da consulta. Assim, muitas vezes é usada uma abordagem de pesquisa exaustiva, por meio da qual são consideradas quase todas as estratégias de execução possíveis. Para evitar o alto custo da pesquisa exaustiva, foram propostas estratégias randomizadas, como a otimização iterativa e o fortalecimento simulado. Essas estratégias procuram encontrar uma solução muito boa, não necessariamente a melhor, mas evitam o alto custo da otimização em termos de consumo de memória e de tempo \cite{OzsuV99}.
+
+%pag 208 - adaptado
+% É possível restringir o espaço de soluções por meio de heurística para que apenas algumas estratégias sejam consideradas e assim reduzir o custo da pesquisa exaustiva. Uma heurística comum, tanto em ambientes centralizados quanto em distribuídos, é minimizar o tamanho das soluções intermediárias. Uma alternativa é executar primeiro as operações unárias e ordenar as operações binárias pelo tamanho crescente de seus valores parciais.
+
+% Uma heurística importante em sistemas distribuídos é substituir operações de junção por combinações de semijunções, a fim de minimizar a comunicação de dados \cite{OzsuV99}.
+
+%pag 209
+% Uma consulta pode ser otimizada em diferentes momentos em relação ao tempo real de execução. A otimização pode ser feita de forma estática antes da execução da consulta, ou de forma dinâmica durante a execução. A otimização estática de consultas é feita em tempo de compilação. Por esta razão, o custo da consulta pode ser amortizado sobre várias execuções da consulta. Assim, essa sincronização é apropriada para uso com o método de pesquisa exaustiva. Tendo em vista que o tamanho das soluções intermediárias de uma estratégia é conhecido apenas em tempo de execução, eles devem ser estimados com o uso de estatísticas do SGBD. Os erros nessas estimativas podem levar à escolha de estratégias pouco adequadas \cite{OzsuV99}.
+
+%pag 209
+% A otimização dinâmica de consultas ocorre em tempo de execução. Em qualquer ponto da execução, a escolha da melhor operação seguinte pode se basear no conhecimento preciso dos resultados das operações executadas anteriormente. Portanto, as estatísticas do SGBD não são necessárias para se estimar o tamanho dos resultados intermediários. Contudo, elas ainda podem ser úteis na escolha das primeiras operações. A principal vantagem em relação à otimização estática é que o tamanho real das soluções intermediárias está disponível para o processador de consultas, minimizando assim a probabilidade de uma escolha inadequada. A principal desvantagem é que a otimização, uma tarefa dispendiosa, deve ser repetida para cada execução da consulta. Desse modo, essa abordagem é melhor para consultas \textit{ad hoc} \cite{OzsuV99}.
+
+%pag 209
+% A otimização híbrida de consultas procura oferecer as vantagens da otimização estática e, ao mesmo tempo, evitar os problemas gerados por estimativas imprecisas. A abordagem é basicamente estática, mas a otimização dinâmica pode ocorrer em tempo de execução quando for detectada uma grande diferença entre os tamanhos previstos e reais das soluções intermediárias \cite{OzsuV99}.
+
+%pag 209
+% A eficiência da otimização de consultas depende de estatísticas sobre o banco de dados. A otimização dinâmica exige estatísticas, a fim de escolher as operações que devem ser executadas em primeiro lugar. A otimização estática é ainda mais exigente, pois o tamanho das soluções intermediárias também deve ser estimado com base em informações estatísticas. Em um ambiente distribuído, as estatísticas para a otimização de consultas geralmente se relacionam com fragmentos e incluem a cardinalidade e o tamanho destes, bem como o tamanho e o número de valores distintos de cada atributo.
+
+% Para minimizar a probabilidade de erros, às vezes são utilizadas estatísticas mais detalhadas, como histogramas de valores de atributos, em detrimento de um custo de gerenciamento mais elevado. A precisão das estatísticas é obtida através de atualização periódica. No caso da otimização estática, mudanças significativas em estatísticas empregadas para otimizar uma consulta podem resultar em nova otimização.
+
+%pag 285
+% Idéias importantes para solucionar o problema de otimização de consultas são as estatísticas do SGBD e as fórmulas usadas para avaliar o tamanho dos resultados intermediários. Há uma correlação direta entre desempenho, precisão e custo de manutenção de estatísticas. Em geral, a operação crítica é a junção dos relacionamentos distribuídos. Para as junções mais freqüentes, os fatores de seletividade de junção devem ser muito vantajosos. O uso de estatísticas pode ser evitado pela aplicação de um algoritmo simples baseado em heurísticas para transformar uma consulta. Entretanto, já foi reconhecido que a pesquisa exaustiva do espaço de solução baseado em estatísticas tem um desempenho melhor que as abordagens heurísticas. Quando calculada estaticamente, em tempo de compilação, a sobrecarga resultante da pesquisa é rapidamente amortizada, se a consulta se torna complexa ou é executada com freqüência \cite{OzsuV99}.

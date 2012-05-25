@@ -1,0 +1,245 @@
+%===============================================================================
+% CAPITULO 4 - ESTRATEGIA
+%===============================================================================
+\chapter{Modelo de Custo para Dados XML em Ambiente Distribuído}\label{chp:4-modelo_proposto}
+
+%===============================================================================
+% INTRODUCAO
+%===============================================================================
+\section{Introdução}\label{sec:chp-4-introducao}
+
+% TODO - falar sobre o modelo de dados XML e armazenamento (fragmentação, alocação) antes desse capítulo
+A concepção de um modelo de custo é baseada na análise de aspectos referentes ao modelo de dados, de armazenamento e de execução do SGBD, o que tende a tornar as funções de custo muito específicas. Cada novo algoritmo proposto ou novo recurso do SGBD é geralmente validado através de um modelo de custo próprio. Entretanto, estes modelos não permitem em geral realizar uma análise comparativa de diferentes trabalhos sobre um mesmo tema. Por outro lado, quanto mais genérico o modelo de custo, mais distante ele estará de fornecer resultados realísticos. Em um otimizador de consultas, cujo objetivo é saber ``instantaneamente'' o desempenho de uma consulta, um modelo muito genérico possui uma aplicação muito restrita. Já na avaliação de novas metodologias, técnicas e decisões de projeto de banco de dados, é necessário uma ferramenta que permita avaliar e simular o desempenho futuro do sistema em várias situações, sem privilegiar recursos de um banco específico. Ainda neste caso, a definição de um modelo de custo deve atentar para as principais implementações dos fatores de maior influência sobre o sistema analisado \cite{Ruberg01}.
+
+O modelo de custo proposto neste trabalho permite identificar o melhor plano de execução de uma consulta baseado no custo de comunicação entre os sítios participantes.
+
+Os sítios participantes são aqueles que possuem os dados que satisfazem a consulta mais o próprio sítio requisitante. O objetivo do modelo proposto é diminuir o custo de comunicação para a completa resolução de uma consulta.
+
+%===============================================================================
+% 
+%===============================================================================
+\section{Parâmetros e Estatísticas Necessários}\label{sec:chp-4-parametros}
+
+% premissas: opcional
+% restrições: obrigatório
+Para conseguir atender a proposta, algumas premissas e restrições foram assumidas:
+\begin{enumerate}
+% TODO - definir fragmentação e explicar como ocorre a disjunção
+ \item um único documento XML é fragmentado de forma disjunta entre os sítios existentes;
+% TODO - definir dataguide
+ \item a estrutura do documento é representada por um dataguide strong com algumas informações detalhadas;
+% TODO - definir esquema de numeração com números primos; justificar a escolha deste tipo de esquema ao invés da numeração por intervalo
+ \item o esquema de numeração com números primos do tipo \textit{top-down} é aplicado no dataguide global;
+% exemplo: //livro//nome e //revista//nome; neste caso o dataguide possui mais de um nó com rótulo nome, com cardinalidades diferentes. Mesmo que haja a tabela com as consulta e seus fragmentos, é necessária a numeração com números primos! caso contrário, como saber a cardinalidade certa no dataguide global?
+%  \item a fragmentação é aplicada sobre o dataguide global e não sobre o documento;
+ \item um sítio pode possuir mais de um fragmento;
+ \item existe uma cópia do dataguide global em todos os sítios;
+ \item existe uma tabela com a localização dos fragmentos nos sítios;
+ \item o dataguide global possui a localização de todos os elementos (referência aos fragmentos);
+ \item o dataguide global possui a cardinalidade total de cada elemento no documento completo;
+ \item o dataguide global possui a cardinalidade de cada elemento em cada fragmento;
+ \item existe uma matriz de custo de transferência entre os sítios, sendo esta, por simplificação, simétrica;
+ \item os atributos são representados como elementos;
+% TODO - definir histograma
+ \item histogramas são usados para estimar os valores números da parte de conteúdo do documento;
+ \item cada tipo diferente de elemento de conteúdo numérico possui um histograma;
+% TODO - definir documento recursivo
+ \item o documento XML é não-recursivo (consequentemente, não possui IDREF e o dataguide global é acíclico);
+ \item todos os possíveis planos de execução de uma consulta já devem ser informados;
+ \item a ordem de execução das subconsultas deve ser previamente conhecida (o modelo de custo proposto não é capaz de indicar se uma subconsulta/operação do plano pode ou não ser resolvida antes da outra);
+%  \item é dada a localização para cada expressão de subconsulta;
+\end{enumerate}
+% uma subconsulta pode usar mais de um fragmento?!? melhor, fazer restrição... mas como?
+% os fragmentos usados em cada consulta já são conhecidos? ou devem ser encontrados baseados nos rótulos da consulta? (ideal)
+% se o fragmento consultado por uma subconsulta já for dado, então será necessária uma tabela para indicar qual fragmento é consulta por qual consulta, além disso, se isso for considerado, será preciso informar esta tal tabela para cada consulta dada pelo usuário
+% como saber qual fragmento possui o resultado completo para uma subconsulta? afinal, se for fragmentação vertical e horizontal sobre o documento, é possível ter apenas uma parte da expressão de caminho da subconsulta em um certo fragmento... nesse caso, teríamos que localizar a expressão inteira (problema de localização)
+
+% pag 38 - Alexandre Silva
+A aplicação de regras de normalização pode transformar os atributos em elementos, transformando o problema de fragmentar atributos em um caso normal de fragmentação vertical. Caso esta normalização não seja desejada no escopo do esquema, ou seja, os atributos devem existir para a aplicação, esta ainda pode ser realizada de forma transparente para o usuário. O SGBD no momento da implementação do fragmento pode criar os elementos para os atributos (de acordo com as regras de normalização), e, no momento de retorná-los ao usuário, voltar à representação de atributos \cite{Andrade06}.
+
+Seja \begin{math}S = {s_1, s_2,..., s_m}\end{math} o conjunto de sítios, onde \textit{m} é o número de sítios da rede; \begin{math}F = {f_1, f_2,..., f_n}\end{math} o conjunto de fragmentos do documento XML, onde \textit{n} é o número de fragmentos, e \begin{math}Q = {q_1, q_2,..., q_l}\end{math} o conjunto de subconsultas que constituem a consulta completa, onde \textit{l} é o número de subconsultas.
+
+Seja \begin{math}P = {p_1, p_2,..., p_j}\end{math} o conjunto de planos de execução da consulta \textit{Q}, onde \textit{j} é o número de planos; e \begin{math}p_x = (q_a, q_b,..., q_w)\end{math} a sequência de subconsultas que representam o plano \begin{math}p_x\end{math}, onde \begin{math}1 \leqslant x \leqslant j\end{math} e \begin{math}1 \leqslant a,b,...,w \leqslant l\end{math}.
+% O custo de comunicação para a execução de cada qk disparada de cada sj sobre os diversos fragmentos envolvidos em qk deve ser o menor possível.
+
+Seja \begin{math}M_{ctr}\end{math} uma matriz, onde \begin{math}(m_{ctr})_{ij}\end{math} é o custo de transferir um dado do sítio \begin{math}s_i\end{math} para o sítio \begin{math}s_j\end{math}. Para simplificar o problema, \begin{math}M_{ctr}\end{math} é uma matriz simétrica onde \begin{math}(m_{ctr})_{ll}\end{math} é igual a 0 para \begin{math}1\leqslant l \leqslant m\end{math}. Caso não exista um ligação direta entre dois sítios \begin{math}s_i\end{math} e \begin{math}s_j\end{math}, ao invés de \begin{math}(m_{ctr})_{ij}\end{math} possuir custo infinito, esta terá a soma dos custos mínimos de ligação de \begin{math}s_i\end{math} à \begin{math}s_j\end{math} passando por outros sítios, obtida previamente por um algoritmo de fluxo mínimo. Quando uma ligação entre sítios é alterada, \begin{math}M_{ctr}\end{math} deve ser atualizada. Os custos de criação e alteração da matriz não são considerados pelo modelo proposto.
+
+Considere a seguinte consulta:
+\begin{quote}
+\textless bib \textgreater \{ \\
+   for \$b in doc(``bib.xml'')/bib/book \\
+   where \$b/authors//last = ``Stevens'' and \\
+   \$b/@year \textgreater 1991 \\
+   return \textless book \textgreater \{ \$b/title \} \textless /book \textgreater \\
+\} \textless /bib \textgreater \\
+\end{quote}
+
+% A fórmula de custo de um dos planos obtidos é \begin{math} cost_{nv}(p1) + |p1| × cost_{nv}(p2) + |p1[p2]| × cost_{nv}(p3) \end{math}
+% onde: p1, p2, e p3 são as expressões de caminho de doc(``bib.xm'')/bib/book, authors//last[.=``Stevens''] e @year[.\textgreater1991], respectivamente.
+Onde: p1, p2, e p3 são as subconsultas dadas pelas expressões de caminho de doc(``bib.xm'')/bib/book, authors//last[.=``Stevens''] e @year[.\textgreater1991], respectivamente.
+
+Temos o seguinte problema para resolver: escolher a melhor rota de transferência dos fragmentos parciais obtidos pelas subconsultas de cada plano de execução, determinando assim o custo de comunicação de cada um deles. 
+
+Diante dos custos calculados, é possível determinar o melhor plano de execução baseado no custo de comunicação.
+
+Para ilustrar os problemas citados, suponha o seguinte exemplo simples: 
+
+\begin{math}S = {s_1, s_2, s_3}\end{math}; \begin{math}F = {f_1, f_2, f_3}\end{math}; \begin{math}Q = {q_1, q_2, q_3}\end{math}; \begin{math}P = {p_1}\end{math}; \begin{math}p_1 = (q_1, q_2, q_3)\end{math}. Considere \begin{math}s_1\end{math} o sítio requisitante de \textit{Q}.
+
+Seja \begin{math}(m_{ctr})_{12} = 5\end{math}; \begin{math}(m_{ctr})_{13} = 50\end{math}; \begin{math}(m_{ctr})_{23} = 1\end{math}.
+
+Seja \begin{math}|f_1|{s_1}=12\end{math}, \begin{math}|f_2|{s_2}=3\end{math}, \begin{math}|f_3|{s_3}=4\end{math}.
+
+\begin{figure}[!hbt]
+ \centering
+  \includegraphics[width=.50\linewidth]{./figuras/ex_3sitios.jpg} 
+ \caption{Exemplo de comunicação entre sítios}
+ \label{fig:pc_geral_camadas}
+\end{figure}
+
+O modelo de custo proposto deve ser capaz de dizer que o custo mínimo de comunicação para o plano \begin{math}p_1\end{math} é: \\
+\begin{math}custo = (custo(q_1) * custo(q_2)) * custo(q_3) * custo_R\end{math} \\
+Dado por: \\
+\begin{math}(custo(q_1) * custo(q_2)) = custo_T(q_1)_{s_2} * |q_1| * |q_2|\end{math}; \\
+\begin{math}custo(q_3) = custo_T(q_3)_{s_2} * |q_3|\end{math}; \\
+\begin{math}custo_R = custo_T(q_1,q_2,q_3)_{s_1} * |q_1 * q_2 * q_3|\end{math}.
+
+\begin{math}custo_T(q_w)_{s_k}\end{math} significa o custo de transferir o resultado de \begin{math}q_w\end{math} para o sítio \begin{math}s_k\end{math} e \begin{math}custo_R\end{math} representa o custo de transferir o resultado completo da consulta para o sítio requisitante. Esse custo pode ser igual a zero, quando o produto do custo da última subconsulta pelo resultado parcial anterior já é executado no próprio sítio requisitante.
+
+Em outra análise, suponha \begin{math}s_3\end{math} o sítio requisitante. Se \begin{math}q' = q_1 * q_2\end{math} for calculado em \begin{math}s_1\end{math} e \begin{math}q' * q_3\end{math} em \begin{math}s_3\end{math} , uma rota de ligação ruim é utilizada nesta resolução (\begin{math}(m_{ctr})_{13}\end{math}). Diante disso, é preciso prever qual a melhor escolha considerando também o cálculo seguinte da consulta. Nesse caso, é melhor fazer \begin{math}q_1 * q_2\end{math} em \begin{math}s_2\end{math} e não em \begin{math}s_1\end{math}, pois \begin{math}s_2\end{math} tem um link melhor com o sítio do cálculo seguinte (\begin{math}s_3\end{math}).
+
+%===============================================================================
+% TODO - Seletividade ou Cardinalidade ?!?
+%===============================================================================
+\section{Seletividade da Expressão de Caminho}\label{sec:chp-4-seletividade}
+
+Antes de estimar o tamanho do resultado parcial de uma consulta, é necessário saber qual o tipo de expressão de caminho em questão. Para cada tipo de expressão de caminho, uma fórmula diferente é usada no cálculo da estimativa de tamanho.
+
+\begin{enumerate}
+
+ \item expressão de caminho simples com /
+expressão: /a/b/c
+tamanho = \begin{math}|c|\end{math}
+Observe que se o documento possui \begin{math}|a| < |c|\end{math}, neste caso, a navegação \textit{bottom-up} não é adequada, mas sim a navegação \textit{top-down}. Observe também que deve ser contabilizado apenas os elementos \textit{c} que são descendentes de \textit{a}, pois no dataguide é possível haver mais de um elemento com o mesmo rótulo. 
+O esquema de numeração de números primos é adotado para identificar esse parentesco entre o último rótulo mencionado na expressão de caminho e o seu primeiro rótulo. Sendo assim, apenas os elementos realmente relevantes para a consulta serão computados.
+O custo de navegação no dataguide e de captura de valores a serem usados nos cálculos de estimativa de tamanho e comunicação não são considerados no modelo proposto.
+
+ \item expressão de caminho simples com //
+expressão: /a//c
+tamanho = \begin{math}|c|\end{math}
+Similar ao item anterior.
+
+ \item expressão de caminho complexo com predicado existencial
+expressão: /a/b[x]/c
+tamanho = \begin{math}min(|x|,|c|)\end{math} onde apenas a quantidade de ocorrências de \textit{x} e \textit{c} que possuem algum parentesco deve ser considerada.
+
+ \item expressão de caminho complexo com predicado de conteúdo numérico
+expressão: /a/b[x=3]/c
+tamanho = \begin{math}min(H(x=3),|c|)\end{math}
+
+ \item expressão de caminho complexo com predicado de conteúdo não-numérico
+expressão: /a/b[x='bla']/c
+tamanho = a definir ou desconsiderar
+
+\end{enumerate}
+
+
+%----------------------------
+\underline{Início de pendências e dúvidas}
+%----------------------------
+
+Seja \begin{math}|v|\end{math} a cardinalidade total do elemento \textit{v}, a qual representa o número de ocorrências do elemento \textit{v} no documento. E seja, \begin{math}|v|_{f_1}\end{math} a cardinalidade do elemento \textit{v} no fragmento \begin{math}f_1\end{math}. [É possível essas cardinalidades serem diferentes? A fragmentação é disjunta e sem replicação.]
+
+Decidir qual medida será usada: cardinalidade ou seletividade? Como usar seletividade?
+
+Se a consulta for dividida em duas partes p1 e p2, precisamos decidir se o resultado parcial de p1 deve ser transmitido para p2 ou se p2 para p1 ou se p1 e p2 devem ir para o sítio que submeteu a consulta. 
+
+Observar que é preciso considerar primeiro se a resposta para a consulta está ou não no próprio sítio requisitante.
+
+No caso de uma junção entre dois resultados parciais, é mais importante considerar o custo de transmissão entre os sítios que participam da junção ou o custo de transmissão dos sítios para o sítio requisitante? Ou as duas coisas? Se for as duas coisas... Então em uma junção entre sítios diferentes, por exemplo, sempre haverá uma verificação "tripla" de custo de transmissão... Sejam s1,s2,s3 sítios, s1 possui o resultado parcial para a consulta p1, s2 para p2 e s3 é requisitante da consulta p formada por p1 e p2. Precisamos calcular os custos de s1s2 e s1s3 + s2s3, para saber é melhor resolver a consulta em s1 ou s2 e depois transportar apenas o resultado para s3, ou se é melhor transmitir os resultados parciais para s3 e lá executar o restante da consulta.
+
+% TODO - definir extensão em um dataguide (existe este conceito para dataguide, ou apenas para bissimilaridade?)
+Um dataguide strong é gerado a partir do próprio documento, dessa forma, não é necessário fornecer o esquema deste. Além disso, o dataguide é construído com alguns detalhes adicionais como a quantidade de nós em cada extensão (quantidade total de nós agrupados = número de nós do documento representados pela \textit{extensão} no dataguide).
+
+É preciso gerar um dataguide strong para o documento completo, chamado dataguide global, bem como, gerar dataguides para cada fragmento existente em cada sítio, chamados dataguides locais. Ou então, armazenar em cada nó do dataguide global, além da cardinalidade total, a cardinalidade do nó em cada sítio (exemplo: count(v) = 8 onde count(v,s1) = 5, count(v,s5) = 7, count(v,s9) = 6). [Sem replicação, isso pode acontecer?]
+
+Todos os sítios devem guardar uma cópia do dataguide global. Isto objetiva minimizar os custos de comunicação para a consulta ao dataguide global e também garantir a sua disponibilidade.
+
+Cada sítio deve armazenar um único fragmento do documento. Dessa forma, também haverá apenas um dataguide local em cada sítio. Ou então, cada nó armazena no máximo a cardinalidade total para cada sítio (\begin{math}count(v,sn) <= count(v)\end{math}). [Decidir: um fragmento por sítio?]
+
+Observe que, um único sítio pode fornecer vários resultados, os quais podem ou não ser \textit{pedaços} de uma junção posterior. Exemplo: selecionar os nomes dos livros de um dado autor e as revistas de um certo ano. Suponha que os nomes dos livros e as revistas com a informação dos anos estão no sítio A, enquanto as informações de autor estão no sítio B. Veja que o resultado das revistas e seus respectivos anos foi totalmente obtido em A, enquanto os nomes dos livros com a restrição de autor são obtidos com a junção do resultado parcial de A e B. Diante do exposto, sempre considere no custo de comunicação, a cardinalidade tanto do resultado parcial que faz parte da junção posterior como também a cardinalidade do resultado parcial que não o faz, dessa forma, toda a cardinalidade obtida em um dado sítio para efeito de resolução de uma consulta é considerada para o cálculo do custo de comunicação. [Não considerar esse tipo de consulta! Como declarar essa restrição?]
+
+O custo de comunicação no processamento de consultas só faz sentido em ambiente distribuído e, sem dúvida, se refere diretamente à importância de minimizar os resultados parciais a serem transferidos de um sítio para outro. No custo de comunicação, é preciso considerar além da quantidade de ocorrências de um dado nó que influencia no resultado parcial, a quantidade deste mesmo nó no dataguide. Dessa forma, temos um custo inicial para busca do nó correspondente à consulta no dataguide (custo de navegação) somado ao custo de correspondência da consulta mediante um predicado ou não (custo de correspondência). Para o primeiro, considera-se a quantidade de vezes que um mesmo rótulo acessado na consulta (mencionada na expressão) aparece em um dataguide; para o segundo, considera-se a quantidade de vezes que o rótulo aparece no documento (fragmento) representado pela cardinalidade armazenada no dataguide.
+
+As consultas que possuem predicado de conteúdo impõem uma complexidade adicional, principalmente se o conteúdo não for numérico, visto que, as estatísticas de valores são obtidas através de histograma. Surge a dúvida: é possível dimensionar valores do tipo string?
+
+Seja a consulta \textit{obter o telefone e email dos alunos cujo nome é João e que residem em Fortaleza}. Suponha que as informações telefone e nome dos alunos estão no sítio A; email no sítio B e local no sítio C. 
+
+[Exemplo com fragmentação disjunta e sem replicação]
+Suponha que existam 200 alunos, sendo todos com telefone e 100 com email, e 110 que residem em Fortaleza.
+Suponha que existam 80 alunos em A, dos quais 70 são João.
+Suponha que existam 40 alunos em B.
+Suponha que existam 30 alunos em C, dos quais 10 residem em Fortaleza.
+Desses, 19 são João e residem em Fortaleza, apenas 9 são João residem em Fortaleza e tem email.
+
+Considerando apenas informações de estrutura, a cardinalidade do resultado parcial em A seria 80, em B seria 40 e em C seria 30. Haveria uma estimativa de, no mínimo, 80 x 40 x 30. Para diminuir os resultado parciais de A e C pela aplicação do predicado de conteúdo João e Fortaleza, é preciso usar um histograma de intervalo de valores não numéricos. [Como fazer isso? Restringir o escopo para valores apenas numéricos?]
+
+[Exemplo com fragmentação não-disjunta][fora do escopo, ok?]
+Seja a consulta \textit{obter os alunos cujo nome é Maria e que estudam em Sobral}. 
+Suponha 20.000 alunos da UFC, sendo os sítios Fortaleza, Sobral e Quixadá. 
+O sítio Fortaleza possui todas as informações enquanto Sobral possui apenas informações dos seus 300 alunos. 
+Suponha que a consulta é requisitada por Quixadá e o link da rede de Fortaleza-Quixadá é mais rápido que o link Sobral-Quixadá. 
+No entanto, se a consulta for realizada em Fortaleza, o custo de buscar o resultado entre os 20.000 alunos é maior que buscar o resultado entre os 300 alunos em Sobral, pois em Fortaleza é preciso verificar se Maria estuda em Sobral, enquanto em Sobral essa verificação é dispensável. 
+[Como fazer isso? Isso já é considerado otimização semântica?]
+
+%----------------------------
+\underline{Fim de pendências e dúvidas}
+%----------------------------
+
+%===============================================================================
+% TRABALHOS RELACIONADOS
+%===============================================================================
+\section{Trabalhos Relacionados}\label{sec:chp-4-trabalhos_relacionados}
+
+[Considerar apenas trabalhos sobre modelo de custo? ou considerar trabalhos que propõem estratégias de estimativas?]
+[Mudar título para Modelo de custo baseado em estimativa de comunicação?]
+
+% \cite{Ruberg01} especifica um modelo de custo para estimar o desempenho das principais estratégias de avaliação de expressões de caminho em bases de objetos distribuídos. A partir desse, especificaremos um novo modelo de custo para o tratamento de dados semi-estruturados, considerando as características próprias das árvores de padrões (\textit{twig query}) descritas pela linguagem XML e as particulariedades da álgebra TLC (\textit{Tree Logical Class}).
+
+%===============================================================================
+% 
+%===============================================================================
+% \section{Múltiplas Referências Idênticas}\label{sec:chp-4-multiplas_referencias}
+
+%===============================================================================
+% 
+%===============================================================================
+% \section{Análise de Custo de Comunicação}\label{sec:chp-4-custo_comunicacao}
+
+%===============================================================================
+% Descricao
+%===============================================================================
+% \section{Descrição}\label{sec:chp-4-descricao}
+
+% O modelo de custo proposto possui um conjunto de fórmulas que permite estimar o esforço de processamento dos possíveis planos de execução para cada consulta considerando detalhes particulares dos dados semi-estruturados e do contexto distribuído. Essas fórmulas devem conter certos parâmetros específicos para o contexto adotado, bem como utilizar informações estatísticas armazenadas no catálogo. O presente trabalho terá como base a álgebra TLC. Assim, fatores de custo relativos aos operadores desta álgebra precisam ser conhecidos. Além disso, uma variedade de indicadores deve ser gerada para permitir o uso nas mais diversas aplicações.
+
+%pag 28 (Ruberg) - adaptado
+% O modelo de custo pode auxiliar na estimativa do volume ocupado pelos fragmentos na etapa de projeto físico do banco, na configuração do cache de dados de um SGBD, na análise de impacto de técnicas para alocação física dos fragmentos e na comparação dos algoritmos típicos para processamento de consultas XML. Os indicadores fornecidos pelo modelo de custo propiciam uma vasta gama de possibilidades de uso e favorecem a compreensão do processamento de consultas para dados semi-estruturados.
+
+%===============================================================================
+% IMPLEMENTACAO
+%===============================================================================
+% \section{Espeficificação do Modelo}\label{sec:chp-4-especificacao_modelo}
+
+% Para a avaliação do trabalho, é preciso contextualizar alguns componentes do processador no ambiente semi-estruturado como, por exemplo, o analisador sintático e semântico para a linguagem XQuery e o conversor algébrico para TLC.
+
+% Adaptar figura de \cite{Figueiredo07} com \cite{WeinerMH08}
+% alterar figura
+% \begin{figure}[!hbt]
+%  \centering
+%  \includegraphics[width=.5\linewidth]{./figuras/processador.jpg} 
+%  \caption[Figura]{Componentes do processador de consultas distribuídas adaptado de \cite{Figueiredo07} com \cite{WeinerMH08}.}
+%  \label{fig:processador}
+% \end{figure}
+
+%EOF 

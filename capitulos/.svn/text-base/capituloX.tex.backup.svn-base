@@ -1,0 +1,103 @@
+%===============================================================================
+% CAPITULO 3 - MODELO DE CUSTO
+%===============================================================================
+\chapter{Modelo de Custo}\label{chp:3-modelo}
+
+\section{Métricas} \label{sec:chp:3-metricas}
+
+% Oracle III (Ronconi) - adaptado
+Existem algumas métricas fundamentais para o modelo de custo, são elas: seletividade, cardinalidade, tamanho e densidade. As métricas devem estar relacionadas e podem ser derivadas das demais.
+
+% SELETIVIDADE
+A seletividade (sl) representa a fração da base de dados que satisfaz uma ou mais condições da consulta. Esta métrica representa quantos nós são filtrados, variando entre \begin{math}0.0\end{math} e \begin{math}1.0\end{math}. O valor \begin{math}0.0\end{math} indica que nenhum nó será selecionado pela condição, enquanto o valor \begin{math}1.0\end{math} indica que todos serão selecionados.
+
+Caso não existam estatísticas para indicar a seletividade, o modelo de custo deve utilizar um valor padrão para esta métrica. Existem diferentes valores utilizados de acordo com o tipo de condição. Uma condição de igualdade (\begin{math}=\end{math}) possui um valor padrão menor do que um condição de intervalo (\begin{math}<\end{math}, \begin{math}>\end{math}). Isso acontece porque se espera que um operador de igualdade selecione menos registros do que um operador de intervalo.
+
+A seletividade é inversamente proporcional à variedade de nós, desta forma, quanto maior a diversidade de valores destes, menor será a quantidade de nós retornados pela condição.
+
+% CARDINALIDADE
+A cardinalidade (ca) representa a quantidade de nós. É possível falar de cardinalidade de um documento inteiro, de um fragmento, ou até de uma consulta. Alguns autores, como \cite{WangJLY04}, se referem ao número de ocorrências de um dado nó como sendo a sua freqüência.
+
+A cardinalidade básica (cb) representa a quantidade de nós em uma base de dados. Mas existem outros tipos de cardinalidade, as quais são: cardinalidade efetiva, cardinalidade de junção, cardinalidade de distinção e cardinalidade de agrupamento.
+
+A cardinalidade efetiva (ce) representa a quantidade de nós realmente selecionados. Este valor depende das condições definidas na consulta, já que estas filtrarão os valores que devem ser retornados. A cardinalidade efetiva é calculada pelo produto da cardinalidade básica e a seletividade das condições informadas na consulta (\begin{math}ce = cb * sl\end{math}). Se não houver nenhuma condição na consulta, então a cardinalidade efetiva é igual a cardinalidade básica.
+
+% \cite{Sartiani03}: paths and twig ara usually translated in sequences of joins
+A cardinalidade de junção (cj) representa a quantidade de nós gerados a partir da junção. Expressões de caminho, geralmente, são traduzidas como uma seqüência de junções \cite{Sartiani03} e cada sequência de junções constitui uma tupla de ligação (\textit{binding twig}).
+% =====================================================================================
+% NO PARAGRAFO ANTERIOR, FALA-SE DE binding twig
+% =====================================================================================
+
+A cardinalidade de distinção (cd) é o número de valores distintos de um nó em uma base de dados. Por exemplo, suponha um documento com 100 nós \textit{pessoa}, mas apenas 30 valores diferentes para \textit{nome} em \textit{pessoa}, então a cardinalidade de distinção do nó \textit{nome} é 30.
+
+% TAMANHO
+O tamanho (ta) se refere ao volume dos dados. Assim como o conceito de cardinalidade, o conceito de tamanho também pode ser aplicado para um todo ou para partes. Por exemplo, podemos quantificar o tamanho de um documento inteiro em bytes, bem como, o tamanho de uma subconsulta. Em sistemas distribuídos, esta última informação é essencial para o cálculo do custo de transferência entre sítios, pois a partir desta, o modelo de custo será capaz de indicar qual resultado parcial deve ser transportado de um sítio para outro, levando em conta aquele de menor tamanho.
+% =====================================================================================
+% NO PARAGRAFO ANTERIOR, FALA-SE EM MODELO DE CUSTO, SEM NO ENTANTO DEFINIR ANTES!
+% =====================================================================================
+
+% DENSIDADE
+% adaptado de http://forums.microsoft.com/MSDN-BR/ShowPost.aspx?PostID=4038665&SiteID=21
+Densidade (de) é a divisão entre tamanho e cardinalidade. Quanto maior o tamanho e menor a cardinalidade mais denso é o resultado. Uma consulta é dita muito densa, quando consegue retornar um grande conjunto de resultados em potencial.
+
+Observe que seletividade e densidade são conceitos opostos. Quanto mais seletivo for uma consulta melhor para as pesquisas. Quanto mais densa, pior.
+
+Os aspectos mais problemáticos para a estimativa de tamanho do resultado de consultas sobre dados XML são \cite{Sartiani03}: seletividade de expressões de caminho (\textit{path} e \textit{twig}), seletividade de predicado e seletividade de agrupamento. Enquanto o primeiro problema é particular para dados semiestruturados, os outros dois já são bem conhecidos na teoria e na prática de banco de dados. Entretando, estes também compartilham de um maior grau de dificuldade imposto pela natureza irregular nativa do XML.
+
+\section{Definição do problema} \label{sec:chp:3-definicao_problema}
+
+% \cite{WangJLY04} adaptado
+O processamento de consultas requer estimar a seletividade das expressões de caminho com precisão. Um otimizador de consultas necessita das estimativas para selecionar corretamente qual o plano de execução mais eficiente dentre tantos outros alternativos. Assim como no modelo relacional, no modelo XML, deve-se processar a consulta de tal forma a obter primeiro os resultados parciais mais seletivos.
+
+% Antes de definir a problemática que envolve a estimativa de seletividade de expressões de caminho, é preciso citar alguns conceitos e fazer restrições no escopo a ser tratado.
+
+Dada uma expressão de caminho \textit{p}, 
+
+% === DUVIDAS ===
+% Contar atributos? O tamanho de um atributo é contabilizado para um elemento?
+% Os nós de agrupamento não devem ser contados para efeito de cardinalidade?
+% Quando existe um esquema, pode-se utilizar a informação de \textit{maxOccurs} para calcular a cardinalidade no pior caso?
+% Como o tamanho da subconsulta é calculado? Bastaria o tamanho dos nós? E como utilizar a seletividade e a cardinalidade?
+% Não entendi estimativa da cardinalidade de grupo
+
+\section{Definição} \label{sec:chp-3-definicao}
+
+% pag 21 (Pires) - adaptado
+O modelo de custo é um módulo crítico do otimizador de consultas baseado em custo, uma vez que através deste o otimizador pode escolher, dentro do espaço de busca, qual o plano mais eficiente.
+
+O custo deve refletir tempo e esforço de CPU, E/S, memória e comunicação. O modelo de custo utiliza funções para realizar as estimativas. Essas funções são chamadas durante o processo de otimização e fazem uso de informações estatísticas da base de dados. O modelo de custo deve fornecer valores próximos da realidade, para que o otimizador escolha bem os planos, e deve computar esses valores de forma eficiente para não degradar o tempo de execução do próprio processo de otimização.
+% modelo de custo <-- funcoes <-- estatisticas
+
+\section{Funções de Custo} \label{sec:chp-3-funcoes}
+
+A função de comunicação (\begin{math}C_{com}\end{math}) é definida como \cite{WildembergPBM03}:
+
+\begin{quote}
+   \begin{math}
+      C_{com}(ctr_{jl}, tam_f) = \lbrace C_{ini} * \frac{tam_f}{tam_p} + ctr_{jl} * tam_f \rbrace
+   \end{math}
+\end{quote}
+
+onde
+
+\begin{description}
+ \item \begin{math}ctr_{jl}\end{math}: custo de transferir um dado de um sítio \begin{math}s_{j}\end{math} para um sítio \begin{math}s_{l}\end{math};
+ \item \begin{math}tam_f\end{math}: tamanho do fragmento;
+ \item \begin{math}tam_p\end{math}: tamanho do pacote de dados da rede;
+ \item \begin{math}C_{ini}\end{math}: custo constante de iniciar a transmissão de um pacote de dados de tamanho \begin{math}tam_p\end{math}.
+\end{description}
+
+% Fatores como distância entre o servidor que está fazendo o teste e problemas de congestionamento na rede, sempre atrapalham e alteram o resultado final.
+% A latência de rede é determinada pelo tempo transcorrido desde o início de uma transmissão a partir da origem até o início do seu recebimento pelo destino. Em alguns casos, como na comunicação via satélites, a latência pode ser maior do que o tempo gasto na transmissão da mensagem. Já a largura de banda pode ser definida como a quantidade de informação que pode ser transmitida em uma única conexão, já estabelecida, por unidade de tempo.
+% CUSTO
+% O custo representa tempo e esforço consumidos pela consulta.
+
+% [Navathe]
+
+% eh possivel ter um modelo de custo sem estatisticas do banco?
+% Oracle III
+% Caso o banco de dados possua estatísticas sobre os dados, esta informação deve ser utilizada para melhorar a precisão da estimativa.
+
+% Existem diversos trabalhos sobre avaliadores de resultados para XML [colocar referências citadas por StatiX: Making XML Count?]. Entretando, esses assumem algumas restrições como: a obrigatoriedade de um esquema para os dados e/ou escopo reduzido para os tipos de consultas (\textit{path query, twig query}).
+% pag 56 (Figueiredo)
+% Módulo responsável pelo cálculo do custo de um plano algébrico a partir dos dados estatísticos de cada fragmento, como o número de nós, tamanho médio em bytes de cada nó, parâmetros de seletividade, peso de leitura em disco, peso de comunicação, etc. Na implementação do protótipo utilizamos apenas o peso da comunicação e a estimativa do número total de nós do fragmento para o cálculo do custo do plano algébrico. O cálculo do custo é feito das folhas do plano algébrico para a raiz. É feita uma estimativa do volume de dados processados por cada operação e o volume que é trafegado entre as operações do plano, considerando o peso da comunicação entre as operações. Operações executadas em um mesmo nodo não possuem custo de comunicação, mas também não poderão ser executadas em paralelo, o que poderia compensar o custo de comunicação devido à distribuição do processamento da consulta.

@@ -1,0 +1,58 @@
+%===============================================================================
+% CAPITULO 6 - CONCLUSAO E TRABALHOS FUTUROS
+%===============================================================================
+\chapter{Conclusões e Trabalhos Futuros}\label{chp:6-conclusoes}
+
+%===============================================================================
+%
+%===============================================================================
+\section{Considerações Finais}\label{sec:chp-6-consideracoes}
+
+A flexibilidade característica de um modelo de dados semi-estruturado impõe ainda mais complexidade ao processamento de consultas. Ademais, a falta de uma álgebra de consenso para dados nesse formato agrava as dificuldades. Fatores complicados tornam a otimização de consultas distribuídas sobre bases de dados XML um desafio longe de ser trivial.
+
+%pag 18 (Ruberg) - adaptado
+No ambiente distribuído, o otimizador precisa reconhecer certas particulariedades pertinente à otimização nesse contexto, como a redução do custo de comunicação entre os sítios. Um modelo de custo consiste em um conjunto de funções baseadas em parâmetros e estatísticas sobre o banco de dados que permite estimar o desempenho dos planos de execução de uma consulta.
+
+% 
+% %Giovano - pag 17
+% Este capítulo apresenta uma descrição das fases envolvidas no processamento de consultas, descrevendo-se os aspectos relevantes neste trabalho e concentrando-se na fase de otimização de consultas e seus elementos como modelo de custos, espaço e estratégias de busca. Apresenta-se, também, uma descrição sobre características específicas do modelo orientado a objetos e que devem ser observadas atentamente pelo processador de consultas. Descreve-se, também, a linguagem de manipulação de dados OQL [CB97], adotada como padrão para sistemas de banco de dados orientados a objetos.
+% 
+% %pag 205
+% O componente de custo de comunicação talvez seja o fator mais importante considerado em bancos de dados distribuídos. A maioria das propostas iniciais de consultas distribuídas pressupõe que o custo de comunicação domina em grande parte os custos de processamento local (custo de E/S e CPU) e assim até ignora esses últimos.
+% 
+% Cumprir requisitos de eficiência no processamento de consultas sobre bases de dados XML distribuídas não é um problema trivial, pois certas particulariedades inerentes ao modelo de dados semi-estruturado dificulta consideravelmente o processo de otimização de consultas.
+
+%===============================================================================
+% TRABALHOS FUTUROS
+%===============================================================================
+\section{Trabalhos Futuros}\label{sec:chp-6-trabalhos_futuros}
+
+Considerar replicação e estatísticas de consultas de conteúdo não-numérico (suportar compressão de dados no processamento de consultas).
+
+% ---------------------------------
+%[Consulta de conteúdo tipo string]
+% ---------------------------------
+% As consultas que possuem predicado de conteúdo impõem uma complexidade adicional, principalmente se o conteúdo não for numérico, visto que, as estatísticas de valores são obtidas através de histograma. Surge a dúvida: é possível dimensionar valores do tipo string?
+% 
+% Seja a consulta \textit{obter o telefone e email dos alunos cujo nome é João e que residem em Fortaleza}. Suponha que as informações telefone e nome dos alunos estão no sítio A; email no sítio B e local no sítio C.
+%
+% [Exemplo com fragmentação disjunta e sem replicação]
+% Suponha que existam 200 alunos, sendo todos com telefone e 100 com email, e 110 que residem em Fortaleza.
+% Suponha que existam 80 alunos em A, dos quais 70 são João.
+% Suponha que existam 40 alunos em B.
+% Suponha que existam 30 alunos em C, dos quais 10 residem em Fortaleza.
+% Desses, 19 são João e residem em Fortaleza, apenas 9 são João residem em Fortaleza e tem email.
+% 
+% Considerando apenas informações de estrutura, a cardinalidade do resultado parcial em A seria 80, em B seria 40 e em C seria 30. Haveria uma estimativa de, no mínimo, 80 x 40 x 30. Para diminuir os resultado parciais de A e C pela aplicação do predicado de conteúdo João e Fortaleza, é preciso usar um histograma de intervalo de valores não numéricos. [Como fazer isso? Restringir o escopo para valores apenas numéricos?]
+% 
+% [Exemplo com fragmentação não-disjunta][fora do escopo, ok?]
+% Seja a consulta \textit{obter os alunos cujo nome é Maria e que estudam em Sobral}. 
+% Suponha 20.000 alunos da UFC, sendo os sítios Fortaleza, Sobral e Quixadá. 
+% O sítio Fortaleza possui todas as informações enquanto Sobral possui apenas informações dos seus 300 alunos. 
+% Suponha que a consulta é requisitada por Quixadá e o link da rede de Fortaleza-Quixadá é mais rápido que o link Sobral-Quixadá. 
+% No entanto, se a consulta for realizada em Fortaleza, o custo de buscar o resultado entre os 20.000 alunos é maior que buscar o resultado entre os 300 alunos em Sobral, pois em Fortaleza é preciso verificar se Maria estuda em Sobral, enquanto em Sobral essa verificação é dispensável. 
+% [Como fazer isso? Isso já é considerado otimização semântica?]
+
+% Ver artigo: Query Processing and Optimization in Native XML Databases \cite{Zhang06}
+% Propomos uma abordagem utilizando heurísticas de otimização, estatísticas dos fragmentos e uma função de custo para determinação do melhor plano algébrico.
+

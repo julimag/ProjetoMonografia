@@ -1,0 +1,137 @@
+%===============================================================================
+% CAPITULO 4 - AVALIACAO
+%===============================================================================
+\chapter{Implementação e Avaliação}\label{chp:4}
+
+%===================================================================
+\section{Aspectos de Implementação}
+%===================================================================
+
+A linguagem utilizada no desenvolvimento da estratégia ETX foi Java \cite{Java08}. Características como portabilidade, ``reusabilidade'', processamento distribuído e \textit{multithreading} são propriedades desta linguagem que favorecem um desenvolvimento confortável, confiável e de altos recursos. A portabilidade está relacionada à independência da plataforma de execução, ou seja, não depende de sistema operacional ou \textit{hardware}. Já a reusabilidade está no fato de que, em Java, há diversos componentes, e APIs estão prontas para serem incorporadas à aplicação, aumentando assim a produtividade. Com relação ao processamento distribuído, Java oferece diversos recursos de comunicação entre componentes, tais como: chamada a funcões remotas (Sockets e RMI) e integração com os protocolos conhecidos de internet (TCP/IP, HTTP, Telnet etc). Assim, torna-se mais fácil o desenvolvimento de aplicações derivadas da arquitetura cliente/servidor. Java possui recursos confiáveis para aplicações \textit{multithreading}, servindo-se de primitivas de sincronização baseadas no uso de monitores. Os mecanismos de sincronização, baseados em monitores da linguagem Java, fornecem um ambiente mais fácil e seguro para o desenvolvimento de aplicações multitarefas.
+
+% Conversao
+Na fase de conversão, foi adotada a especificação DOM \cite{Dom302}. O documento XML foi inteiramente armazenado no DOM como um modelo lógico de nós. DOM é uma especificação da W3C, independente de plataforma e linguagem. Permite dinamicamente alterar e editar a estrutura, conteúdo e estilo de um documento, e também, que o documento seja mais tarde processado e os resultados desse processamento sejam incorporados de volta no próprio documento. A API DOM oferece uma maneira padrão de se acessar os elementos de um documento, além de se poder trabalhar com cada um desses elementos separadamente.
+
+Nos experimentos da ETX, optou-se por utilizar o SGBDXN Sedna \cite{Sedna06} para realizar o processamento das subconsultas e, assim, obter os tamanhos reais dos resultados parciais. Esses resultados foram então comparados com os valores estimados.
+
+As bases foram geradas utilizando o gerador de bases ToXgene \cite{Toxgene02}, a partir de templates e carregadas no Sedna através de uma classe Java, a qual, baseada na fragmentação, distribuiu os documentos gerados.
+
+Manualmente, foi criado o catalogo.xml apenas com a estrutura do catálogo, a fim de gerar o conjunto de objetos Java para serialização e desserialização do conteúdo. Essa geração dos objetos, foi feita em duas etapas (catalogo.xml \textrightarrow \space catalogo.xsd \textrightarrow \space objetos). Primeiro, foi utilizada a ferramente Trang \cite{Trang08} para inferir o esquema catalogo.xsd a partir do catalogo.xml. Depois, com a especificação \textit{Java Architecture for XML Binding} ou simplesmente \textit{JAXB} foi usado o \textit{Binding Compiler}, cuja função é transformar um xsd em um conjunto de classes que tenham uma estrutura compatível com a estrutura do xml que esse xsd define. O \textit{Binding Compiler} é independente da implementação do \textit{JAXB}, ou seja, quem define como ele será executado é quem implementa a especificação, porém a maioria e inclusive a própria \textit{RI (Reference Implementation)} cria um comando que pode ser chamado pela linha de comando do Sistema Operacional, o $xjc$.
+
+O catálogo.xml é então preenchido com as informações das tuplas pelo Módulo Secundário da ETX. E posteriormente, utilizado pelo Módulo Principal para fornecer as estimativas de tamanho dos resultados parciais das consultas.
+
+%===================================================================
+\section{Avaliação}
+%===================================================================
+
+Para avaliar os resultados reais com os resultados obtidos na estratégia, optou-se por utilizar o SGBDXN Sedna \cite{Sedna06} pelo fato de ser um sistema \textit{open-source} e com as características de armazenamento e processamento de consultas necessárias à execução dos experimentos.
+
+A estratégia proposta visa fornecer subsídios para a redução dos custos de comunicação no processamento de consulta sobre dados XML em ambiente distribuído. Com esse intuito, uma estratégia de estimativa de tamanho, ETX, é apresentada. Esta permite estimar o tamanho dos resultados parciais de uma consulta e, diante desse conhecimento prévio, é possível evitar a transferência dos maiores resultados entre os sítios envolvidos e, consequentemente, diminuir o custo de comunicação. O foco da ETX é o tamanho e não apenas a cardinalidade dos elementos dos resultados intermediários, uma vez que elementos de mesma cardinalidade podem ter tamanhos diferentes.
+
+A avaliação no contexto deste trabalho busca comparar os tamanhos reais dos resultados parciais das consultas com os tamanhos obtidos pela estratégia ETX. O experimento demonstra a precisão das estimativas.
+
+\noindent \textbf{Ambiente de Avaliação}
+
+Considere um conjunto de sítios S=\{$S_1$...$S_N$\}. Cada sítio $S_i$ possui um SGBDXN Sedna contendo os documentos XML adequados a cada experimento e uma instância da ETX. Considere ainda que o conjunto de sítios também representa o conjunto de clientes, os quais dão origem às requisições de consultas.
+
+Cada cliente possui uma cópia do catálogo gerado pelo Módulo Secundário da estratégia ETX. Para processar uma consulta \textit{q}, um cliente de $S_i$ submete \textit{q} ao Módulo Principal. Desse modo, para cada consulta \textit{q}, o cliente $S_i$ requisitante executa a estratégia proposta.
+
+A base de dados consiste de uma coleção de documentos XML gerada pelo ToXGene \cite{Toxgene02}.
+
+%===================================================================
+\section{Experimentos} %(Exemplo de Aplicacao)Avaliacao/Estudo de Caso (Ambiente e Experimentos)
+%===================================================================
+
+Para exemplificar o funcionamento da estratégia proposta, foi utilizada uma coleção de documentos com a estrutura de Item de CLoja \cite{Andrade06}, conforme a \figref{fig:cloja}.
+
+\begin{figure}[!hbt]
+\centering
+\includegraphics[width=0.7\linewidth]{figuras/cloja.png}
+\caption[Esquema CLoja]{Esquema CLoja}\label{fig:cloja}
+\end{figure}
+
+Os testes foram realizados para comparar os tamanhos estimados usando a estratégia proposta com os tamanhos reais de cada resultado obtidos pela execução da consulta. Todas as consultas informadas ao protótipo requisitam dados de dois ou mais fragmentos, tendo uma operação de junção ou união sobre eles. As bases de dados foram todas fragmentadas pelo mesmo tipo de fragmentação. A fragmentação adotada foi a horizontal, utilizam o elemento Secao na definição do predicado de fragmentação.
+
+O processo de carga foi realizado utilizando-se um módulo do próprio protótipo ETX que é responsável pela carga de dados XML em massa. Esse módulo
+recebe um arquivo XML que descreve a origem dos dados e quais são as coleções aonde serão armazenadas as informações. É importante notar que este módulo foi escrito para carga de dados no banco de dados Sedna, já que ele possui algumas funções capazes de fazer a carga direta de informações de uma coleção em outra.
+
+O módulo é capaz de criar coleções a partir de arquivos XML armazenados em um sistema de arquivos, necessário para a carga inicial das coleções; ou a criação de coleções com base em uma outra coleção principal, uma vez que esta já exista dentro do Sedna.
+
+Foram usados 3 computadores, S=\{$S_1$,$S_2$,$S_3$\} de configuração Core 2 Duo, 3 GB RAM, 160 GB. A fragmentação horizontal das bases foi feita conforme a \tabref{tab:alocacaoAvaliacao} e as consultas conforme a \tabref{tab:consultasBenchmark} e \tabref{tab:subconsultas}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Fragmento} & \textbf{Critério de Seleção} & \textbf{Sítios}\\ \hline
+$f_{01}$ & $/Item/Secao = 'Livro'$ & $s_1$  \\ \hline
+$f_{02}$ & $/Item/Secao = 'Cd'$ & $s_2$ \\ \hline
+$f_{03}$ & $/Item/Secao = 'Dvd'$ & $s_3$ \\ \hline
+$f_{04}$ & $/Item/Secao = 'Brinquedo'$ & $s_1$ \\ \hline
+$f_{05}$ & $/Item/Secao = 'Jogos' $ & $s_2$ \\ \hline
+$f_{06}$ & $/Item/Secao = 'Eletronicos' $ & $s_3$ \\ \hline
+$f_{07}$ & $/Item/Secao = 'Perfumes' $ & $s_1,s_3$ \\ \hline
+\end{tabular}
+\caption{Alocação dos Fragmentos para Avaliação} \label{tab:alocacaoAvaliacao}
+\end{table}
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{id} & \textbf{Valor}\\ \hline
+\multirow{6}{*}{$Q_{1}$} 
+& \texttt{FOR \$x IN collection('Itens')/Item}\\ 
+& \texttt{FOR \$y IN collection('Itens')/Item}\\
+& \texttt{WHERE \$x/Nome = \$y/Nome} \\
+& \texttt{AND \$x[Secao = 'Eletronicos']} \\
+& \texttt{AND \$y[Secao = 'Jogos']}\\ 
+& \texttt{RETURN \$x/Descricao,\$x/Preco,\$y/Descricao,\$y/Preco}\\ \hline
+\multirow{6}{*}{$Q_{2}$} 
+& \texttt{FOR \$x IN collection('Itens')/Item}\\ 
+& \texttt{FOR \$y IN collection('Itens')/Item}\\
+& \texttt{WHERE \$x/Nome = \$y/Nome} \\
+& \texttt{AND \$x[Secao = 'Livro']} \\
+& \texttt{AND \$y[Secao = 'Cd']}\\ 
+& \texttt{RETURN \$x/ResenhaClientes, \$y/ResenhaClientes}\\ \hline
+\end{tabular}
+\label{tab:consultasBenchmark}\caption{Consultas do Benchmark}
+\end{table}
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{|c|l|}
+\hline
+\textbf{id} & \textbf{Valor}\\ \hline
+\multirow{3}{*}{$SQ1.1$} 
+& \texttt{FOR \$x IN collection('Itens')/Item}\\ 
+& \texttt{WHERE \$x[Secao = 'Eletronicos']} \\
+& \texttt{RETURN \$x/Nome,\$x/Descricao,\$x/Preco}\\ \hline
+\multirow{3}{*}{$SQ1.2$}
+& \texttt{FOR \$y IN collection('Itens')/Item}\\
+& \texttt{WHERE \$y[Secao = 'Jogos']}\\ 
+& \texttt{RETURN \$y/Nome,\$y/Descricao,\$y/Preco}\\ \hline
+\multirow{3}{*}{$SQ2.1$}
+& \texttt{FOR \$x IN collection('Itens')/Item}\\ 
+& \texttt{WHERE \$x[Secao = 'Livro']} \\
+& \texttt{RETURN \$x/Nome,\$x/ResenhaClientes}\\ \hline
+\multirow{3}{*}{$SQ2.2$} 
+& \texttt{FOR \$y IN collection('Itens')/Item}\\
+& \texttt{WHERE \$y[Secao = 'Cd']}\\ 
+& \texttt{RETURN \$y/Nome,\$y/ResenhaClientes}\\ \hline
+\end{tabular}
+\label{tab:subconsultas}\caption{Subconsultas}
+\end{table}
+
+Os resultados apresentados na \figref{fig:graficoSQ} correspondem ao comparativo realizado. Os valores se referem aos tamanhos estimados e aos tamanhos reais dos resultados das subconsultas, sendo os primeiros decorrentes da estratégia proposta e os últimos da execução das consultas.
+
+\begin{figure}[!hbt]
+\centering
+\includegraphics[width=0.5\linewidth]{figuras/graficoSQ.png}
+\caption[Comparativo]{Comparativo}\label{fig:graficoSQ}
+\end{figure}
+
+%===================================================================
+% \section{Conclusão}
+%===================================================================
+

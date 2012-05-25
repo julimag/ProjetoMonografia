@@ -1,0 +1,295 @@
+%===============================================================================
+% CAPITULO 2 - FUNDAMENTOS TEÓRICOS
+%===============================================================================
+\chapter{Processamento e Otimização de Consultas}\label{chp:2}
+
+%===================================================================
+\section{Processamento de Consultas}
+%===================================================================
+
+%Adaptado de: pag 16, Giovano; pag 10, Ruberg; pag 201, Valduriez
+O processamento de consultas é um requisito essencial de um Sistema de Gerenciamento de Banco de Dados (SGBD). O processador de consultas, módulo responsável por esse serviço, deve transformar uma consulta definida em uma linguagem de alto nível em uma equivalente de nível mais baixo e em seguida executá-la sobre o conteúdo na base dados. A transformação realizada deve ser correta e eficiente. A corretude existe se a consulta de baixo nível e a original são semanticamente iguais, ou seja, se ambas produzem o mesmo resultado. A eficiência é obtida quando o tempo decorrido nesse processo não compromete o tempo de resposta da consulta.
+
+Algumas das etapas principais do processamento de consultas são: a análise, a conversão algébrica e a otimização. A análise é a primeira tarefa do processador, a qual pode ser subdividida em léxica, sintática e semântica. A léxica é a forma de verificar o alfabeto da linguagem e assim, ao analisar uma palavra, saber se existe ou não algum caracter que não faz parte do alfabeto. Os símbolos léxicos gerados são mais facilmente manipulados pelo processo de análise sintática, que por sua vez, realiza a tradução destes de acordo com regras da gramática da linguagem. A análise semântica verifica o significado no contexto. Ainda na fase de análise, pode ser feita a normalização e a simplificação da consulta. O objetivo da normalização é mapear a consulta para uma forma normalizada, a fim de faciliar o processamento adicional. Uma maneira de simplificação é a eliminação de redundâncias através de um conjunto de regras de idempotência, cujo objetivo é a simplificação da lógica booleana dos predicados de seleção da consulta. % apenas ultima sentenca retirada de Guilherme - pag 35
+
+A etapa de conversão transforma a consulta validada em sua representação algébrica. Esse mapeamento bem definido, da consulta de alto nível para baixo nível, facilita na corretude. A utilização de uma álgebra formal no processamento de consultas é fundamental.
+
+A etapa de otimização objetiva encontrar uma estratégia de execução para a consulta que seja similar à ótima. Na verdade, o termo otimização é inapropriado porque o plano de execução escolhido não é, necessariamente, a estratégia ótima - a melhor - mas apenas uma razoavelmente eficiente. Encontrar a estratégia ótima geralmente consome muito tempo, exceto para as consultas mais simples, e pode requerer informações sobre a maneira como os arquivos estão implementados e até mesmo sobre o conteúdo destes \cite{ElmasriN94}.
+
+%pag 205, Valduriez adaptado; pag 75, Graefe
+A estratégia escolhida deve ser aquela que minimiza as medidas mais relevantes de desempenho. Essas medidas se referem aos tempos de resposta, CPU e E/S; bem como, tempo e esforço de comunicação, os quais podem diferir quando há paralelismo; custos com memória, como espaço de alocação máximo; gasto total com recursos, até mesmo consumo de energia. As medidas consideradas pelo otimizador podem ser apenas uma das enumeradas ou mesmo uma combinação de todas elas \cite{Graefe93}.
+
+%===================================================================
+\subsection{Centralizado versus Distribuído}
+%===================================================================
+
+%pag 207, 215
+É muito difícil avaliar e comparar os processadores de consultas no contexto dos sistemas centralizados e dos sistemas distribuídos, porque eles podem diferir em muitos aspectos, como o tipo de algoritmo, a granularidade e a sincronização de otimização, o uso de estatísticas, a escolha de sítios de decisão, a exploração da topologia de rede e a exploração de fragmentos replicados \cite{OzsuV99}.
+
+%pag 205, 201 - adaptado
+O banco de dados distribuído é visto como um único banco de dados pelos usuários e as consultas em alto nível, submetidas a ele, devem ser convertidas em uma estratégia de execução eficiente em uma linguagem de baixo nível e sobre bancos de dados locais.
+
+%pag 202
+Em um contexto centralizado, as estratégias de execução de consultas podem ser expressas em uma extensão da álgebra. No contexto distribuído, ela não é suficiente para expressar as estratégias de execução. Ela deve ser complementada com operações para intercâmbio de dados entre os sítios. Além da opção de ordenar operações, o processador deve selecionar os melhores sítios para processar os dados e, possivelmente, o modo como os dados devem ser transformados. Isso aumenta o espaço de solução a partir do qual é escolhida a estratégia, tornando o processador de consultas distribuídas significativamente mais difícil \cite{OzsuV99}.
+
+%pag 242 - adaptado
+O ambiente distribuído acrescenta mais algumas etapas em relação ao processamento de consultas centralizado. A localização e a otimização global são pertinentes à arquitetura de SGBDs distribuídos. Na localização, as referências globais são substituídas por referências aos fragmentos, além disso, há a fase de redução, na qual fragmentos irrelevantes ao resultado podem ser eliminados. Na otimização global, é gerado um plano de execução de consultas otimizado, que consiste na consulta algébrica especificada sobre fragmentos e nas operações de comunicação para dar suporte à execução da consulta sobre os sítios.
+
+%===================================================================
+\subsection{Otimização de Consultas}
+%===================================================================
+
+%pag 490 Navathe adaptado
+Existem duas técnicas principais para implementar a otimização de consultas. A primeira é baseada em heurísticas e a segunda, em custos.
+
+%pag 504 Navathe adaptado
+Uma heurística funciona bem na maioria dos casos, mas não existem garantias de que funcione bem em todos os casos possíveis. Ela pode ser aplicada através de regras de transformação ou estratégias de busca.
+
+%pag 511 Navathe adaptado; pag 243 Valduriez adaptado
+As regras de transformação, geralmente, reordenam as operações na árvore de consultas. Uma das principais é a aplicação dos operadores de seleção e projeção o quanto antes para, assim, reduzir o tamanho do resultado parcial gerado. O uso dessas transformações acarreta no espaço de busca, o qual consiste de planos de execução alternativos para representar a consulta inicial. Esses planos são equivalentes, no sentido de obter o mesmo resultado, mas diferem na ordem de execução das operações e no modo como estas são implementadas, atingindo desempenho variado.
+
+%pag 244, 246 Valduriez adaptado;
+As estratégias exploram o espaço de busca e selecionam o melhor plano. Elas definem os planos que serão examinados e a ordem do exame. A programação dinâmica é uma das estratégias de busca mais populares, que é determinística. Ela constrói todos os planos possíveis, primeiro na largura, antes de escolher o melhor plano. Para reduzir o custo de otimização, planos parciais que provavelmente não conduzirão ao plano ótimo são descartados assim que possível. Em contraste, outra estratégia determinística, a estratégia gulosa, constrói apenas um plano, atuando primeiro em profundidade \cite{OzsuV99}.
+
+A segunda técnica, para implementar a otimização de consultas, envolve estimar sistematicamente o custo de diferentes estratégias de execução e escolher o plano de execução com a menor estimativa de custo. 
+
+Uma abordagem diferente para otimização de consultas é a otimização semântica de consultas. Essa técnica, que pode ser utilizada em combinação com as técnicas previamente citadas, utiliza restrições específicas no esquema do banco de dados no sentido de modificar uma consulta para uma outra que seja mais eficiente quanto a execução. O otimizador semântico, a partir de uma certa restrição, pode ser capaz de saber que o resultado da consulta será vazio e não ser necessário executá-la \cite{ElmasriN94}.
+
+\noindent \textbf{Módulos do otimizador}
+
+Um otimizador de consultas pode ser visualizado como um conjunto de três módulos: o espaço de busca, a otimização baseada em regras e a otimização baseada em custos. Dá-se o nome de espaço de busca ao conjunto de planos algébricos equivalentes que podem ser gerados a partir do plano algébrico inicial com o uso de regras de transformação. A princípio, o espaço de busca é constituído pelos planos algébricos gerados pela fase anterior à otimização. No caso do ambiente distribuído, este seria o plano localizado, o qual possui referências aos fragmentos.
+
+Através da otimização baseada em regras, são obtidos diversos outros planos algébricos, pois a simples troca de posição de operadores é capaz de produzir um grande número de equivalências. O espaço de busca tende a crescer exponencialmente, assim, o custo para selecionar o melhor plano de execução dentro de um espaço de busca muito rico pode ser proibitivo de forma que o tempo de otimização acabe por exceder o próprio tempo de execução \cite{Giovano01}. Para restringir o espaço de busca e tornar o tempo de otimização aceitável, faz-se necessária a utilização de uma estratégia de busca. A estratégia de busca mais utilizada é a programação dinâmica. No entanto, esta pode não conduzir a planos ótimos devido às heurísticas não serem baseadas em custos e utilizarem apenas informações lógicas para descartar os planos.
+
+O terceiro componente do otimizador é o modelo de custos. É através desse modelo que o otimizador pode escolher dentro do espaço de busca qual plano é o mais eficiente. O custo deve refletir o nível de utilização por parte do plano de recursos como tempo de CPU, custo de E/S, utilização de memória e custos de comunicação de acordo com a arquitetura utilizada. As funções para estimativa de custo são chamadas durante o processo de otimização e utilizam informações estatísticas da base de dados como o número de nós existentes na base e o nível de utilização de memória de operações como junções. O modelo de custos deve fornecer valores próximos da realidade, para que o otimizador escolha bem os planos, e deve computar esses valores de forma eficiente para não degradar o tempo de execução do próprio processo de otimização.
+
+\noindent \textbf{Otimização Estática e Dinâmica}
+
+%pag 209
+Uma consulta pode ser otimizada em diferentes momentos em relação ao tempo real de execução. A otimização pode ser feita de forma estática antes da execução da consulta, ou de forma dinâmica durante a execução. A otimização estática de consultas é feita em tempo de compilação. Por essa razão, o custo da consulta pode ser amortizado sobre várias execuções da consulta. Assim, essa sincronização é apropriada para uso com o método de pesquisa exaustiva. Tendo em vista que os tamanhos das soluções intermediárias de uma estratégia são conhecido apenas em tempo de execução, eles devem ser estimados com o uso de estatísticas do SGBD. Os erros nessas estimativas podem levar à escolha de estratégias pouco adequadas \cite{OzsuV99}.
+
+%pag 209
+A otimização dinâmica de consultas ocorre em tempo de execução. Em qualquer ponto da execução, a escolha da melhor operação seguinte pode se basear no conhecimento preciso dos resultados das operações executadas anteriormente. Portanto, as estatísticas do SGBD não são necessárias para se estimar o tamanho dos resultados intermediários. Contudo, elas ainda podem ser úteis na escolha das primeiras operações. A principal vantagem em relação à otimização estática é que os tamanhos reais das soluções intermediárias estão disponíveis para o processador de consultas, minimizando assim a probabilidade de uma escolha inadequada. A principal desvantagem é que a otimização, uma tarefa dispendiosa, deve ser repetida para cada execução da consulta. Desse modo, essa abordagem é melhor para consultas \textit{ad hoc} \cite{OzsuV99}.
+
+%pag 209
+A eficiência da otimização de consultas depende de estatísticas sobre o banco de dados. A otimização dinâmica exige estatísticas, a fim de escolher as operações que devem ser executadas em primeiro lugar. A otimização estática é ainda mais exigente, pois os tamanhos das soluções intermediárias também devem ser estimados com base em informações estatísticas. Em um ambiente distribuído, as estatísticas para a otimização de consultas geralmente se relacionam com fragmentos e incluem a cardinalidade e o tamanho destes, bem como o tamanho e o número de valores distintos de cada atributo.
+
+Para minimizar a probabilidade de erros, às vezes são utilizadas estatísticas mais detalhadas, como histogramas de valores de atributos, em detrimento de um custo de gerenciamento mais elevado. A precisão das estatísticas é obtida através de atualização periódica. No caso da otimização estática, mudanças significativas em estatísticas empregadas para otimizar uma consulta podem resultar em nova otimização.
+
+%pag 285
+Idéias importantes para solucionar o problema de otimização de consultas são as estatísticas do SGBD e as fórmulas usadas para avaliar os tamanhos dos resultados intermediários. Há uma correlação direta entre desempenho, precisão e custo de manutenção de estatísticas. Em geral, a operação crítica é a junção dos relacionamentos distribuídos. Para as junções mais frequentes, os fatores de seletividade de junção devem ser muito vantajosos. O uso de estatísticas pode ser evitado pela aplicação de um algoritmo simples baseado em heurísticas para transformar uma consulta. Entretanto, já foi reconhecido que a pesquisa exaustiva do espaço de solução baseado em estatísticas tem um desempenho melhor que as abordagens heurísticas. Quando calculada estaticamente, em tempo de compilação, a sobrecarga resultante da pesquisa é rapidamente amortizada, se a consulta se torna complexa ou é executada com frequência \cite{OzsuV99}.
+
+%===================================================================
+\section{Processamento de Consultas XML}
+%===================================================================
+
+%===================================================================
+\subsection{Aspectos do Modelo XML}
+%===================================================================
+
+O modelo de dados semiestruturado foi definido para dados que não se adequam a um esquema rígido. Esse modelo permite que o dado seja parcialmente estruturado, de forma que componentes do dado possam estar faltando em alguns itens, possam ter tipos diferentes em itens diferentes, e coleções de itens possam ser heterogêneas. Em um modelo de dados semiestruturado, uma base de dados é modelada como um grafo rotulado e com uma raiz. Os nós representam objetos e possuem um identificador associado (oid). O XML, formato padrão para a Web, é essencialmente uma sintaxe para dados semi-estruturados \cite{Figueiredo07}.
+
+DOM (\textit{Document Object Model}) \cite{Dom302} é uma especificação da W3C, independente de plataforma e linguagem, onde pode-se dinamicamente alterar e editar a estrutura, conteúdo e estilo de um documento. DOM pode ser usado para armazenar os dados de um documento XML em uma estrutura hierárquica, em forma de árvore, que imita a estrutura do próprio documento.
+
+%===================================================================
+\subsection{Expressão de Caminho}
+%===================================================================
+
+Uma expressão de caminho $l$ define um caminho navegacional sobre o grafo de um documento. Uma expressão de caminho pode ser representada abstratamente como uma sequência de passos $passo_1/passo_2/\dots/passo_n$, em que cada passo $i$ computa um novo conjunto de nós a partir do conjunto de nós gerados no passo anterior. O conjunto de nós gerados pelo último passo é chamado de conjunto alvo da expressão e é denominado por $alvo(l)$. Qualquer nó $u$ que pertence a $alvo(l)$ é dito ser descoberto pela expressão de caminho $l$. $\epsilon$ é usado para representar expressões de caminho vazios, as quais não contém passos \cite{PGarofalakis02}.
+
+A forma mais simples de uma expressão de caminho é a expressão de caminho simples da forma $l_1/l_2/.../l_n$ onde $l_i$ são os rótulos dos nós do documento. O conjunto alvo da expressão de caminho inclui todos os elementos $u_n$ para os quais existe um caminho $u_1/u_2/.../u_n$ no documento com $rotulo(u_i) = l_i$.
+
+Expressões de caminho ramificado têm a forma $l = l_1[l^1]/l_2[l^2]/.../l_n[l^n]$, onde $l_i$ são nomes e $l^i$ são expressões de caminho simples ou $\epsilon$. Uma expressão de caminho ramificado é formada a partir de uma expressão de caminho simples $l_1/.../l_n$ ligada a ramos de predicados $l^i$. Cada $[l^i]$ representa uma cláusula de predicado existencial que requer a existência de pelo menos um caminho $l^i$ no ponto $i$ da expressão. O caminho de $l$ que alcança $alvo(l)$ é chamado de caminho principal, enquanto aqueles representados por $l^i$ são ditos caminhos periféricos ou de predicado.
+
+Considere, por exemplo, a expressão de caminho simples $l_1/.../l_k/.../l_n$ e seja $u_1/.../u_k/.../u_n$ o caminho do documento correspondente a essa expressão. Assuma que o predicado $l$ é adicionado na posição k, formando a expressão ramificada $l_1/.../l_k[l^k]/.../l_n$. O caminho do documento $u_1/.../u_k/.../u_n$ irá corresponder a nova expressão somente se existir pelo menos um caminho no documento que inicie a partir de $u_k$ e corresponda ao caminho simples $rotulo(u_k)/l^k$. Note que se todos os caminhos de predicado forem vazios, a expressão de caminho ramificado degenera para a expressão de caminho simples $l_1/.../l_n$.
+
+%===================================================================
+\subsection{Tipos de Consultas}
+%===================================================================
+
+Os documentos XML são caracterizados por conteúdo e estrutura. Este fato introduz dois tipos de consultas \cite{SmiljanicBKJ02}: consultas de conteúdo e consultas de estrutura. O primeiro tipo apresenta uma condição de valor, enquanto o segunto tipo apresenta alguma restrição de existência ou de posição de um dado elemento. Uma única consulta XML pode conter filtros de conteúdo e de estrutura.
+
+Além da classificação das consultas quanto aos tipos de filtros, elas também podem ser categorizadas quanto à representação do seu formato. Basicamente, elas são divididas em: consultas de caminho (\textit{path query}) e consultas de árvore (\textit{twig query})\cite{GouCC07}. Diferentemente de consultas em banco de dados relacional, as consultas no enfoque de XML requerem o reconhecimento dos relacionamentos entre os elementos envolvidos.
+
+Basicamente, um padrão de consulta de caminho é uma lista de nomes de elementos separados por barra (/,//) que descreve o caminho através do documento XML, semelhante a representação usada para nome de arquivos em uma hierarquia de diretórios. As expressões de caminho são avaliadas da esquerda para a direita e cada passo é aplicado ao conjunto de instâncias produzidas pelo passo anterior. Ao final, o padrão seleciona um conjunto de elementos que combinam com o caminho, chamados de ``alvos''. A \figref{fig:xpathCaminho} mostra dois exemplos desse tipo de consulta.
+
+%-------------------
+% FIGURA - xpathcaminho
+%-------------------
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.65\textwidth]{./figuras/xpathCaminho.png}
+\caption{Consulta de caminho \cite{Haw07}}
+\label{fig:xpathCaminho}
+\end{figure}
+
+Um padrão de consulta de árvore é uma árvore de nomes de elementos que pode representar vários caminhos no documento XML, como mostra a \figref{fig:xpatharvore}. O padrão seleciona um conjunto ou uma sequência de elementos que combinam com os caminhos. Uma consulta com predicado é considerada do padrão de árvore, pois tem uma restrição que caracteriza uma ramificação.
+
+%-------------------
+% FIGURA - xpatharvore
+%-------------------
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.9\textwidth]{./figuras/xpatharvore.png}
+\caption{Consulta de árvore \cite{Haw07}}
+\label{fig:xpatharvore}
+\end{figure}
+
+Uma consulta XPath pode ser representada por um padrão de caminho, mas geralmente é especificada pelo padrão de árvore, podendo envolver múltiplos predicados \cite{GouCC07}. A linguagem XQuery é mais expressiva que a XPath, sendo a segunda um subconjunto da primeira. 
+
+%===================================================================
+\subsection{Sumários de Estrutura e Esquemas de Numeração}
+%===================================================================
+
+Diversas técnicas de otimização foram desenvolvidas para reduzir grafos de dados XML e assegurar as características de relacionamentos entre seus nós. Essas técnicas são conhecidas como sumários de estrutura e esquemas de numeração.
+
+\noindent \textbf{DataGuide}
+
+O DataGuide \cite{GoldmanW97} é um tipo de sumário muito conhecido que possui dois formatos principais: \textit{minimal DataGuide} e \textit{strong DataGuide}. Dependendo do formato a ser utilizado, a quantidade de nós e arestas do grafo do DataGuide poderá ser menor. Em geral, o \textit{minimal DataGuide} requer menos espaço de armazenamento que o \textit{strong DataGuide} devido a sua construção ter maior capacidade de compactação, por conseguinte, proporciona uma manutenção difícil.
+
+Seja $G$ um grafo de representação dos dados XML, um DataGuide $H$ é um sumário de $G$ tal que toda representação de caminho simples em $G$ é representada em $H$ uma única vez e cada expressão de caminho simples em $H$ é também uma expressão de caminho simples em $G$.
+
+O \textit{strong DataGuide} é definido como:
+
+\begin{quote}
+Seja $H$ um DataGuide de $G$. Dado o caminho $l$ de $G$, $T_G(l)$ é o conjunto alvo de $l$ em $G$ e $T_H(l)$ é o conjunto alvo de $l$ em $H$.
+
+Considere \begin{math}L_G(l) = \{m \mid T_G(m) = T_G(l) \}\end{math} \\
+Isto é, $L_G(l)$ é o conjunto de todos os caminhos em $G$ que compartilham o mesmo conjunto alvo que $l$.
+
+Similar, seja \begin{math}L_H(l) = \{m \mid T_H(m) = T_H(l) \}\end{math} \\
+Isto é, \begin{math}L_H(l)\end{math} é o conjunto de todos os caminhos em $H$ que compartilham o mesmo conjunto alvo que $l$.
+
+Se para todo caminho $l$ de $G$, $L_G(l) = L_H(l)$, então $H$ é um \textit{strong DataGuide} para $G$.
+\end{quote}
+
+A \figref{fig:dataguide} exibe um grafo de dados (a), seu \textit{strong DataGuide} (b) e seu \textit{minimal DataGuide} (c).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.5\textwidth]{./figuras/dataguide.png}
+\caption{DataGuide \cite{GoldmanW97}}
+\label{fig:dataguide}
+\end{figure}
+
+\noindent \textbf{P-CONTAINMENT}
+
+O esquema de numeração P-CONTAINMENT \cite{LiLLY05} propõe que cada nó da árvore seja associado a uma tupla do tipo \textless$ start,end,parent\_start$\textgreater, assim permite determinar rapidamente todos os principais relacionamentos entre os nós. As propriedades de P-CONTAINMENT são:
+
+Propriedade(P-C): Para dois nós diferentes $u$ e $v$, $u$ é pai de $v$ sse $start(u) = parent\_start(v)$.
+
+Propriedade(\textit{sibling}): Para dois nós diferentes $u$ e $v$ que não são raiz, $u$ é irmão de $v$ sse $parent\_start(u) = parent\_start(v)$.
+
+% Propriedade(\textit{following-sibling}): Para dois nós irmãos $u$ e $v$, $u$ é \textit{following-sibling} de $v$ sse $start(u)>start(v)$.
+% 
+% Propriedade(\textit{precedant-sibling}): Para dois nós irmãos $u$ e $v$, $u$ é \textit{precedant-sibling} de $v$ sse $start(u)<start(v)$
+
+As demais propriedades de P-CONTAINMENT seguem dos demais esquemas de numeração tradicionais que propõem o uso de tuplas tipo \textless$ start,end,level$\textgreater.
+
+Propriedade(A-D): Para dois nós diferentes $u$ e $v$, $u$ é ancestral de $v$ sse $start(u)<start(v)<end(v)<end(u)$.
+
+Propriedade(\textit{following}): Para dois nós diferentes $u$ e $v$, $u$ é \textit{following} de $v$ sse $start(v)<end(v)<start(u)<end(u)$.
+
+Propriedade(\textit{precedant}): Para dois nós diferentes $u$ e $v$, $u$ é \textit{precedant} de $v$ sse $start(u)<end(u)<start(v)<end(v)$.
+
+A \figref{fig:pcontainment} apresenta um exemplo de um grafo com o esquema de numeração P-CONTAINMENT.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.5\textwidth]{./figuras/pcontainment.png}
+\caption{Esquema de numeração P-CONTAINMENT}
+\label{fig:pcontainment}
+\end{figure}
+
+%===================================================================
+\section{Projeto de Distribuição de Dados}
+%===================================================================
+
+Um projeto de distribuição de dados visa a dividir uma base de dados em fragmentos (replicados ou não) e alocá-los entre diversos nós de um ambiente distribuído.
+
+%===================================================================
+\subsection{Fragmentação}
+%===================================================================
+
+A fase de fragmentação de dados visa a encontrar os subconjuntos que definem os fragmentos. A fragmentação sobre um conjunto de dados é recomendada porque a aplicação que os utiliza, em geral, somente considera um subconjunto desses dados. Outro motivo é quando aplicações remotas acessam conjuntos diferentes de uma mesma fonte de dados. Nesses casos, existem duas alternativas: o conjunto de dados não é replicado e é somente armazenado em um sítio; ou é replicado em todos os sítios ou somente nos quais as aplicações são executadas. No primeiro caso, ocorre o problema de acesso remoto desnecessário a uma grande quantidade de dados; na segunda alternativa, temos replicação desnecessária, o que poderá causar problemas com atualizações e pode não ser uma opção desejável se o espaço de armazenagem é limitado. Finalmente, a decomposição desse conjunto de dados em fragmentos permite que transações feitas sobre eles operem concorrentemente. Além disso, permite que uma consulta seja executada em paralelo, já que pode ser dividida em subconsultas a serem executadas em cada fragmento. Assim, a fragmentação reduz o tempo de processamento dessa consulta e consequentemente aumenta o nível de concorrência e, com isso, a vazão do sistema \cite{Andrade06}.
+
+Porém, existem situações em que a fragmentação pode não ser indicada. Se uma aplicação tem requisitos conflitantes que impeçam a decomposição do conjunto de dados em fragmentos mutuamente exclusivos, pode haver uma degradação de desempenho. Pode ser necessário, por exemplo, recuperar dados de dois fragmentos e efetuar uma operação de junção ou união sobre eles, e isso pode ser custoso. Outro problema é relativo ao controle semântico dos dados, especificamente, controle de integridade. Como resultado da fragmentação, atributos que participam de uma determinada regra de integridade podem ser decompostos em diferentes fragmentos. Nesse caso, uma tarefa simples de verificação de integridade pode envolver recuperação de informação em sítios remotos, o que pode também acarretar em perda de desempenho \cite{Andrade06}.
+
+%===================================================================
+\subsection{Alocação}
+%===================================================================
+
+O problema da alocação de dados envolve encontrar a distribuição ótima dos dados nos sítios da rede de forma a minimizar o custo das aplicações sobre esses dados. A alocação é um aspecto crítico em um Sistema de Banco de Dados Distribuídos (SBDD), já que uma alocação ineficiente dos dados pode levar a um aumento considerável do custo de acesso ao SBDD. Em geral, em um projeto de distribuição da base de dados, a fase de alocação é
+realizada após a fase de fragmentação, a qual determina a distribuição dos dados em fragmentos. Um dos principais objetivos que devem ser alcançados na fase de alocação é aumento da proximidade entre os fragmentos e os sítios que os utilizam, minimizando o custo de comunicação \cite{WildembergPBM03}.
+
+O principal aspecto que determina a qualidade da solução encontrada para o problema de alocação de dados é a eficiência do projeto de alocação, ou seja, a alocação dos dados nos sítios deve minimizar, tanto quanto possível, o custo das consultas executadas \cite{WildembergPBM03}.
+
+%===================================================================
+\subsection{Replicação}
+%===================================================================
+
+Replicação é um tópico cada vez mais importante no contexto de banco de dados e serve sobretudo para aumentar a disponibilidade do sistema em caso de falha, permitindo redirecionar os clientes para as réplicas operacionais. Além disso, oferece também melhorias na escalabilidade, ao permitir a execução paralela de requisições de clientes nas diferentes réplicas. Finalmente, pode permitir uma menor latência no acesso, explorando a localidade dos dados \cite{Sousa07}.
+
+Embora replicação seja um conceito intuitivo, sua implementação requer técnicas sofisticadas. Isso ocorre pela  dificuldade de manutenção da consistência de réplicas: quando um dado é alterado, suas réplicas também precisam ser atualizadas para manter um estado distribuído consistente. Para manter a consistência das réplicas, são necessários protocolos específicos ou protocolos de replicação \cite{Sousa07}.
+
+%===================================================================
+\section{Métricas}
+%===================================================================
+
+Assim como no ambiente relacional \cite{Oracle}, existem algumas métricas fundamentais para o modelo de custo para dados XML. São elas: cardinalidade e tamanho.
+
+% CARDINALIDADE
+A cardinalidade representa a quantidade de nós. É possível falar de cardinalidade de um documento inteiro, de um fragmento, ou até de uma consulta. Alguns autores, como \cite{WangJLY04}, se referem ao número de ocorrências de um dado nó como sendo a sua frequência. A cardinalidade básica representa a quantidade de nós em uma base de dados e a cardinalidade efetiva representa a quantidade de nós realmente selecionados. Esse valor depende das condições definidas na consulta, já que estas filtrarão os valores que devem ser retornados. A cardinalidade de distinção é o número de valores distintos de um nó em uma base de dados.
+
+% TAMANHO
+O tamanho se refere ao volume dos dados. Assim como o conceito de cardinalidade, o conceito de tamanho também pode ser aplicado para um todo ou para partes. Por exemplo, podemos quantificar o tamanho de um documento inteiro em bytes, bem como, o tamanho de uma subconsulta. Em sistemas distribuídos, esta última informação é essencial para o cálculo do custo de transferência entre sítios, pois a partir desta, o modelo de custo será capaz de indicar qual resultado parcial deve ser transportado de um sítio para outro, levando em conta aquele de menor tamanho.
+
+% Oracle III (Vinicius Ronconi) - adaptado
+% Assim como no ambiente relacional \cite{Oracle}, existem algumas métricas fundamentais para o modelo de custo para dados XML, são elas: seletividade, cardinalidade, tamanho e densidade. As métricas devem estar relacionadas e podem ser derivadas das demais.
+
+% % SELETIVIDADE
+% A seletividade (sl) representa a fração da base de dados que satisfaz uma ou mais condições da consulta. Esta métrica representa quantos nós são filtrados, variando entre \begin{math}0.0\end{math} e \begin{math}1.0\end{math}. O valor \begin{math}0.0\end{math} indica que nenhum nó será selecionado pela condição, enquanto o valor \begin{math}1.0\end{math} indica que todos serão selecionados. Caso não existam estatísticas para indicar a seletividade, o modelo de custo deve utilizar um valor padrão para esta métrica. Existem diferentes valores utilizados de acordo com o tipo de condição. Uma condição de igualdade (\begin{math}=\end{math}) possui um valor padrão menor do que um condição de intervalo (\begin{math}<\end{math}, \begin{math}>\end{math}). Isso acontece porque se espera que um operador de igualdade selecione menos registros do que um operador de intervalo. A seletividade é inversamente proporcional à variedade de nós, desta forma, quanto maior a diversidade de valores destes, menor será a quantidade de nós retornados pela condição.
+% CARDINALIDADE
+% A cardinalidade (ca) representa a quantidade de nós. É possível falar de cardinalidade de um documento inteiro, de um fragmento, ou até de uma consulta. Alguns autores, como \cite{WangJLY04}, se referem ao número de ocorrências de um dado nó como sendo a sua freqüência. A cardinalidade básica (cb) representa a quantidade de nós em uma base de dados. Mas existem outros tipos de cardinalidade, como: cardinalidade efetiva, cardinalidade de junção e cardinalidade de distinção. A cardinalidade efetiva (ce) representa a quantidade de nós realmente selecionados. Este valor depende das condições definidas na consulta, já que estas filtrarão os valores que devem ser retornados. A cardinalidade efetiva é calculada pelo produto da cardinalidade básica e a seletividade das condições informadas na consulta (\begin{math}ce = cb * sl\end{math}). A cardinalidade de junção (cj) representa a quantidade de nós gerados a partir da junção. A cardinalidade de distinção (cd) é o número de valores distintos de um nó em uma base de dados.
+% TAMANHO
+% O tamanho (ta) se refere ao volume dos dados. Assim como o conceito de cardinalidade, o conceito de tamanho também pode ser aplicado para um todo ou para partes. Por exemplo, podemos quantificar o tamanho de um documento inteiro em bytes, bem como, o tamanho de uma subconsulta. Em sistemas distribuídos, esta última informação é essencial para o cálculo do custo de transferência entre sítios, pois a partir desta, o modelo de custo será capaz de indicar qual resultado parcial deve ser transportado de um sítio para outro, levando em conta aquele de menor tamanho.
+% % DENSIDADE
+% Densidade (de) é a divisão entre tamanho e cardinalidade. Quanto maior o tamanho e menor a cardinalidade mais denso é o resultado. Uma consulta é dita muito densa, quando consegue retornar um grande conjunto de resultados em potencial. A seletividade e densidade são conceitos opostos. Quanto mais seletiva for uma consulta melhor para as pesquisas; quanto mais densa, pior.
+
+% Alguns dos aspectos mais problemáticos para a estimativa de tamanho do resultado de consultas sobre dados XML são: a seletividade de expressões de caminho (\textit{path}) e expressões de árvore (\textit{twig}) e a seletividade de predicado \cite{Sartiani03}.
+
+%===================================================================
+\section{Estimativa de Cardinalidade e de Tamanho}
+%===================================================================
+
+% http://documentation.softwareag.com/crossvision/ins441/perform/EfficientXQuery.htm
+% the join predicate is an equal comparison on elements and attributes that occurs exactly once per document.
+A estimativa de cardinalidade dos elementos envolvidos nas subconsultas é uma informação indispensável ao cálculo do tamanho do resultado da consulta global. Estimativas de cardinalidade de consultas de caminho são definidas pela cardinalidade do elemento alvo (elemento mais a direita da expressão), atentando para as restrições de relacionamento definidas na expressão da consulta. Estimativas de cardinalidade de consultas de árvore são mais complexas por apresentarem mais de um caminho a ser avaliado.
+
+A estimativa de tamanho do resultado de uma consulta depende da cardinalidade dos elementos das subconsultas. Dessa forma, em ambiente distribuído e com dados fragmentados, antes de estimar o tamanho de um resultado, é preciso conhecer a cardinalidade.
+
+%===================================================================
+\section{Trabalhos Relacionados}
+%===================================================================
+
+% Moraes
+\cite{FilhoH08} propõem um \textit{framework} (EXsum) para sumarização dos dados XML com suporte à estimativa de cardinalidade.  O EXsum é formado por um conjunto de nós ASPE (\textit{axes summary per element}), onde cada nó ASPE representa um nome de elemento/atributo distinto no documento XML. Um nó ASPE é composto pelo nome do elemento/atributo, o número total de ocorrências do nó relatado no documento e um número variável de ponteiros, os quais representam, em sua maioria, alguns eixos de XPath (parent, child, ancestor, descendant). Diferentemente da estratégia ETX, o EXsum fornece os resultados de cardinalidade com precisão apenas quando os documentos são livres de homônimos e as expressões de caminho têm apenas um a dois passos de localização (comprimento pequeno).
+
+% Gerben pag 53,6
+\cite{Broenink08} apresenta um sumário para documentos XML com suporte à estimativa de cardinalidade em consultas XPath. Todos os tipos de eixos são contemplados, mesmo aqueles fora do escopo (self, descendant-of-self e ancestor-of-self) são atendidos, uma vez que, eles são evidentes quando todos os outros eixos são conhecidos. O sumário contem duas partes: a primeira consiste no armazenamento de todos os caminhos que ocorrem no documento XML junto com suas cardinalidades; essa parte fornece apenas informações de relações entre pai e filho. As relações dos eixos tipo precedente, subsequente e de irmãos são armazenadas na segunda parte do sumário. Para cada par de caminhos, as relações são armazenadas usando cinco números. \cite{Broenink08} não trata expressões de consulta XQuery, ao contrário da estratégia ETX.
+
+% \begin{table}[ht!]
+% \centering
+% \begin{tabular}{|l|l|l|l|l|}
+% \hline
+% \multirow{2}{*}{Trabalho} & Suporte à XQuery & Precisão com homônimos & Precisão independente\\ & da expressão de caminho & Suporte a todos\\ & os tipos de eixos \\ \hline
+% \cite{FilhoH08} & Não & Não & Não & Não \\ \hline
+% \cite{Broenink08} & Não & Sim & Sim & Sim \\ \hline
+% ETX & Sim & Sim & Sim & Não \\ \hline
+% \end{tabular}
+% \label{tab:trabalhosRelacionados} \caption{Trabalhos relacionados}
+% \end{table}
+
+Dentre os trabalhos relacionados, nenhum deles apresenta estimativa de cardinalidade e de tamanho para resultados parciais de consulta sobre dados XML fragmentados e replicados em ambiente distribuído.
+
+% TODO - continua

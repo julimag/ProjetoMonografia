@@ -1,0 +1,142 @@
+%===============================================================================
+% CAPITULO 6 - CONCLUSAO E TRABALHOS FUTUROS
+%===============================================================================
+\chapter{Conclusões e Trabalhos Futuros}\label{chp:6-conclusoes}
+
+%===============================================================================
+%
+%===============================================================================
+\section{Considerações Finais}\label{sec:chp-6-consideracoes}
+
+A flexibilidade característica de um modelo de dados semi-estruturado impõe ainda mais complexidade ao processamento de consultas. Ademais, a falta de uma álgebra de consenso para dados nesse formato agrava as dificuldades. Fatores complicados tornam a otimização de consultas distribuídas sobre bases de dados XML um desafio longe de ser trivial.
+
+%pag 18 (Ruberg) - adaptado
+No ambiente distribuído, o otimizador precisa reconhecer certas particulariedades pertinente à otimização nesse contexto, como a redução do custo de comunicação entre os sítios. Um modelo de custo consiste em um conjunto de funções baseadas em parâmetros e estatísticas sobre o banco de dados que permite estimar o desempenho dos planos de execução de uma consulta.
+
+% 
+% %Giovano - pag 17
+% Este capítulo apresenta uma descrição das fases envolvidas no processamento de consultas, descrevendo-se os aspectos relevantes neste trabalho e concentrando-se na fase de otimização de consultas e seus elementos como modelo de custos, espaço e estratégias de busca. Apresenta-se, também, uma descrição sobre características específicas do modelo orientado a objetos e que devem ser observadas atentamente pelo processador de consultas. Descreve-se, também, a linguagem de manipulação de dados OQL [CB97], adotada como padrão para sistemas de banco de dados orientados a objetos.
+% 
+% %pag 205
+% O componente de custo de comunicação talvez seja o fator mais importante considerado em bancos de dados distribuídos. A maioria das propostas iniciais de consultas distribuídas pressupõe que o custo de comunicação domina em grande parte os custos de processamento local (custo de E/S e CPU) e assim até ignora esses últimos.
+% 
+% Cumprir requisitos de eficiência no processamento de consultas sobre bases de dados XML distribuídas não é um problema trivial, pois certas particulariedades inerentes ao modelo de dados semi-estruturado dificulta consideravelmente o processo de otimização de consultas.
+
+%===============================================================================
+%
+%===============================================================================
+% \section{Contribuições}\label{sec:chp-5-contribuicoes}
+
+%===============================================================================
+% TRABALHOS FUTUROS
+%===============================================================================
+% \section{Trabalhos Futuros}\label{sec:chp-5-futuro}
+% Ver artigo: Query Processing and Optimization in Native XML Databases \cite{Zhang06}
+
+% Propomos uma abordagem utilizando heurísticas de otimização, estatísticas dos fragmentos e uma função de custo para determinação do melhor plano algébrico.
+
+%===============================================================================
+%
+%===============================================================================
+\section{Cronograma}\label{sec:chp-5-cronograma}
+
+A seguir enumeramos as atividades pendentes para o desenvolvimento do trabalho e apresentamos o cronograma a ser cumprido.
+
+\begin{enumerate}
+ \item Complementar pesquisa bibliográfica;
+ \item Desenvolver as funções e algoritmos necessários;
+ \item Implementar e avaliar a proposta;
+ \item Escrever a dissertacão de mestrado;
+ \item Defender a dissertação.
+\end{enumerate}
+
+\subsection*{Cronograma Mensal}
+
+% tabela do cronograma
+\begin{scriptsize}
+\begin{center}
+ \begin{tabular}{ | c | c | c | c | c | c | c | c | c | c | c | c | c | }
+   \hline
+  & 09/08     & 10/08     & 11/08     & 12/08     & 01/09     & 02/09     & 03/09     & 04/09
+\\ \hline
+1 & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ \\
+\hline
+2 & -         & -         & $\bullet$ & -         & -         & -         & -         & - \\
+\hline
+3 & -         & -         & -         & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & - \\
+\hline
+4 & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & - \\
+\hline
+5 & -         & -         & -          & -        & -         & -         & -         & $\bullet$ \\
+\hline
+ \end{tabular}
+\end{center}
+\end{scriptsize}
+
+\subsection*{Cronograma Semanal}
+
+\begin{center}
+\begin{footnotesize}
+\begin{tabular}{ | c | c | c | }
+\hline
+\textbf{Semana} & \textbf{Data} & \textbf{Tarefa} \\
+\hline
+40 & 28/09 -- 04/10 & Correção da proposta de dissertação \\
+\hline
+41 & 05/10 -- 11/10 & Leitura de artigos já catalogados \\
+\hline
+42 & 12/10 -- 18/10 & Leitura de artigos já catalogados \\
+\hline
+43 & 19/10 -- 25/10 & Comparação detalhada das propostas existentes \\
+\hline
+44 & 26/10 -- 01/11 & Amadurecimento da idéia e escopo do trabalho \\
+\hline
+45 & 02/11 -- 08/11 & Espeficicação das funções de custo para o contexto proposto \\
+\hline
+47 & 09/11 -- 15/11 & Espeficicação das funções de custo para o contexto proposto \\
+\hline
+48 & 16/11 -- 22/11 & Preparação do ambiente para implementação \\
+\hline
+49 & 30/11 -- 06/12 & Implementação e escrita da dissertação \\
+\hline
+50 & 07/12 -- 13/12 & Implementação e escrita da dissertação \\
+\hline
+51 & 14/12 -- 20/12 & Implementação e escrita da dissertação \\
+\hline
+52 & 21/12 -- 27/12 & Recesso e escrita da dissertação \\
+\hline
+1  & 28/12 -- 03/01 & Recesso e escrita da dissertação \\
+\hline
+2  & 04/01 -- 10/01 & Implementação e escrita da dissertação \\
+\hline
+3  & 11/01 -- 17/01 & Implementação e escrita da dissertação \\
+\hline
+4  & 18/01 -- 24/01 & Implementação e escrita da dissertação \\
+\hline
+5  & 25/01 -- 31/01 & Implementação e escrita da dissertação \\
+\hline
+6  & 01/02 -- 07/02 & Implementação e escrita da dissertação \\
+\hline
+7  & 09/02 -- 14/02 & Implementação e escrita da dissertação \\
+\hline
+8  & 15/02 -- 21/02 & Implementação e escrita da dissertação \\
+\hline
+9,13  & 22/02 -- 28/03 & Avaliação e escrita da dissertação \\
+\hline
+14 & 29/03 -- 04/04 & Escrita da dissertação \\
+\hline
+15 & 05/03 -- 11/03 & Escrita da dissertação \\
+\hline
+16 & 12/03 -- 18/03 & Correções da dissertação \\
+\hline
+17 & 19/03 -- 25/03 & Escrita da dissertação \\
+\hline
+18 & 26/03 -- 02/04 & Entrega da dissertação e desenvolvimento da apresentação da dissertação \\
+\hline
+19 & 03/04 -- 09/04 & Desenvolvimento da apresentação da dissertação \\
+\hline
+20 & 10/04 -- 16/04 & Defesa da dissertação \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}

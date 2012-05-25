@@ -1,0 +1,32 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\setlength{\labelsep}{0pt}\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{1.53 }
+
+\bibitem[Bernardo e Kon 2008]{Kon08}
+\abntrefinfo{Bernardo e Kon}{BERNARDO; KON}{2008}
+{BERNARDO, P.~C.; KON, F. \emph{{A Importância dos Testes Automatizados}}.
+  2008.
+Engenharia de Software Magazine, 1(3), pp. 54-57.
+Dispon{\'\i}vel em:
+  $<$https://www.estatistica.br/~kon/papers/EngSoftMagazine-IntroducaoTestes.p%
+df$>$.}
+
+\bibitem[Eletrônico 2011]{eMag11}
+\abntrefinfo{Eletrônico}{ELETRôNICO}{2011}
+{ELETRôNICO, D.~D. de G. \emph{{Modelo de Acessibilidade em Governo
+  Eletrônico}}. Agosto 2011.
+Dispon{\'\i}vel em:
+  $<$http://www.governoeletronico.gov.br/biblioteca/arquivos/e-mag-3.0/downloa%
+d$>$.}
+
+\bibitem[GoogleMobileAds 2011]{GoogleMobileAds11}
+\abntrefinfo{GoogleMobileAds}{GOOGLEMOBILEADS}{2011}
+{GOOGLEMOBILEADS. \emph{{The Time for Mobile Is Now}}. 2011.
+Video.
+Dispon{\'\i}vel em: $<$http://www.youtube.com/watch?v=9GalBu\textunderscore
+  cEkM$>$.}
+
+\end{thebibliography}
